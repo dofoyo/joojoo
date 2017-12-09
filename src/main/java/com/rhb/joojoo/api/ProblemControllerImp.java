@@ -26,14 +26,10 @@ public class ProblemControllerImp implements ProblemController {
 	@GetMapping("/questions")
 	public ResponseContent<List<QuestionDTO>> getQuestions(@RequestParam(value="orderBy", defaultValue="") String orderBy) {
 		List<QuestionDTO> questions = null;
-		System.out.println("orderBy:" + orderBy);
-		if("orderByContent".equals(orderBy)){
-			questions = questionService.getQuestionsOrderByContent();
-		}else{
-			questions = questionService.getQuestions();
-		}
+		//System.out.println("orderBy:" + orderBy);
+		questions = questionService.getQuestions(orderBy);
 		
-		String curl = null;;
+		String curl = null;
 		for(QuestionDTO question : questions){
 			question.setContentImageUrl(this.getContentImageUrl(question.getContentImage()));
 			question.setOriginalImageUrl(originalImageUrl + question.getOriginalImage());
@@ -74,6 +70,20 @@ public class ProblemControllerImp implements ProblemController {
 		}
     	//System.out.println("update content " + id + ", " + body);
     }
+    
+    @PutMapping("/question_knowledgeTag")
+    public void updateKnowledgeTag(@RequestParam(value="id") String id, @RequestBody String body){
+    	ObjectMapper mapper = new ObjectMapper();
+    	try {
+			QuestionDTO dto = mapper.readValue(body, QuestionDTO.class);
+			questionService.updateKnowledgeTag(id, dto.getKnowledgeTag());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	//System.out.println("updateKnowledgeTag " + id + ", " + body);
+    }
+
     
     @PutMapping("/question_right")
     public void updateRightTimes(@RequestParam(value="id") String id, @RequestBody String body){

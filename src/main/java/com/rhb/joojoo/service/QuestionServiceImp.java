@@ -24,32 +24,7 @@ public class QuestionServiceImp implements QuestionSevice{
 	private Map<String,Question> questions = null;
 
 	@Override
-	public List<QuestionDTO> getQuestionsOrderByContent() {
-		if(questions == null){
-			init();
-		}
-		
-		List<QuestionDTO> dtos = new ArrayList<QuestionDTO>();
-		for(Map.Entry<String, Question> entry : questions.entrySet()){			
-			QuestionDTO dto = this.getQuestionDTO(entry.getValue());
-			dtos.add(dto);
-		}
-		
-		Collections.sort(dtos, new Comparator<QuestionDTO>(){
-			public int compare(QuestionDTO dto1, QuestionDTO dto2){			
-				String s1 = dto1.getContent()==null ? "" : dto1.getContent();
-				String s2 = dto2.getContent()==null ? "" : dto2.getContent();
-				
-				return s1.compareTo(s2);
-			}
-		});
-		
-		
-		return dtos;
-	}
-	
-	@Override
-	public List<QuestionDTO> getQuestions() {
+	public List<QuestionDTO> getQuestions(String orderBy) {
 		if(questions == null){
 			init();
 		}
@@ -60,18 +35,27 @@ public class QuestionServiceImp implements QuestionSevice{
 			dtos.add(dto);
 		}
 		
-		Collections.sort(dtos, new Comparator<QuestionDTO>(){
-			public int compare(QuestionDTO dto1, QuestionDTO dto2){
-				int flag = dto2.getWrongRate().compareTo(dto1.getWrongRate());
-				if(flag == 0){
-					flag = dto2.getWrongTimes().compareTo(dto1.getWrongTimes());
+		if("orderByContent".equals(orderBy)){
+			Collections.sort(dtos, new Comparator<QuestionDTO>(){
+				public int compare(QuestionDTO dto1, QuestionDTO dto2){			
+					String s1 = dto1.getContent()==null ? "" : dto1.getContent();
+					String s2 = dto2.getContent()==null ? "" : dto2.getContent();
+					
+					return s1.compareTo(s2);
 				}
-				
-				return flag;
-			}
-		});
-		
-		
+			});
+		}else{
+			Collections.sort(dtos, new Comparator<QuestionDTO>(){
+				public int compare(QuestionDTO dto1, QuestionDTO dto2){
+					int flag = dto2.getWrongRate().compareTo(dto1.getWrongRate());
+					if(flag == 0){
+						flag = dto2.getWrongTimes().compareTo(dto1.getWrongTimes());
+					}
+					
+					return flag;
+				}
+			});
+		}
 		return dtos;
 	}
 	
@@ -90,6 +74,7 @@ public class QuestionServiceImp implements QuestionSevice{
 			question.setContent(q.getContent());
 			question.setRightTimes(q.getRightTimes());
 			question.setWrongTimes(q.getWrongTimes());
+			question.setKnowledgeTag(q.getKnowledgeTag());
 			questions.put(question.getId(), question);
 		}
 		
@@ -108,21 +93,29 @@ public class QuestionServiceImp implements QuestionSevice{
 
 	@Override
 	public void updateContent(String id, String content) {
-		//System.out.println("questionServiceImp.updateContent(" + id + "," + content + ")");
-		
+		//System.out.println("questionServiceImp.updateContent(" + id + "," + content + ")");	
 		if(questions.containsKey(id)){
 			Question question = questions.get(id);
-			
 			//更新domain对象
 			question.setContent(content);
-			
 			//持久化
 			this.persist(question);
 		}
-		
-		
 	}
 
+	@Override
+	public void updateKnowledgeTag(String id, String knowledgeTag) {
+		//System.out.println("questionServiceImp.updateContent(" + id + "," + content + ")");	
+		if(questions.containsKey(id)){
+			Question question = questions.get(id);
+			//更新domain对象
+			question.setKnowledgeTag(knowledgeTag);
+			//持久化
+			this.persist(question);
+		}
+	}
+
+	
 	@Override
 	public void refresh() {
 		this.init();
@@ -159,6 +152,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		qe.setOriginalImage(question.getOriginalImage());
 		qe.setRightTimes(question.getRightTimes());
 		qe.setWrongTimes(question.getWrongTimes());
+		qe.setKnowledgeTag(question.getKnowledgeTag());
 		
 		questionRepository.update(qe);
 	}
@@ -171,6 +165,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		dto.setContentImage(question.getContentImage());
 		dto.setRightTimes(question.getRightTimes());
 		dto.setWrongTimes(question.getWrongTimes());
+		dto.setKnowledgeTag(question.getKnowledgeTag());
 		
 		return dto;
 	}

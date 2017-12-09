@@ -7,7 +7,14 @@ public class QuestionEntity {
 	private String contentImage;  			// 题目图片
 	private int rightTimes = 0;					//正确次数
 	private int wrongTimes = 1;					//错误次数
+	private String KnowledgeTag;				//知识点
 
+	public String getKnowledgeTag() {
+		return KnowledgeTag;
+	}
+	public void setKnowledgeTag(String knowledgeTag) {
+		KnowledgeTag = knowledgeTag;
+	}
 	public String getId() {
 		return id;
 	}

@@ -9,6 +9,16 @@ public class QuestionDTO {
 	private String contentImageUrl;
 	private Integer rightTimes = 0;					//正确次数
 	private Integer wrongTimes = 1;					//错误次数
+	private String knowledgeTag;	//知识点标签
+	
+	
+	public String getKnowledgeTag() {
+		return knowledgeTag;
+	}
+
+	public void setKnowledgeTag(String knowledgeTag) {
+		this.knowledgeTag = knowledgeTag;
+	}
 	
 	public Double getWrongRate(){
 		return new Double(wrongTimes/(rightTimes + wrongTimes));
@@ -53,13 +63,13 @@ public class QuestionDTO {
 	public Integer getRightTimes() {
 		return rightTimes;
 	}
-	public void setRightTimes(int rightTimes) {
+	public void setRightTimes(Integer rightTimes) {
 		this.rightTimes = rightTimes;
 	}
 	public Integer getWrongTimes() {
 		return wrongTimes;
 	}
-	public void setWrongTimes(int wrongTimes) {
+	public void setWrongTimes(Integer wrongTimes) {
 		this.wrongTimes = wrongTimes;
 	}
 

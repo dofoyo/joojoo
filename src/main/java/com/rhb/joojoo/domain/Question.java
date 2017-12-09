@@ -9,6 +9,14 @@ public class Question {
 	private String content;					// 题目
 	private String contentImage;  			// 题目图片
 	private Set<String> knowledgeTags;		// 知识点标签（追击、相遇...)
+	private String knowledgeTag;	//知识点标签
+	public String getKnowledgeTag() {
+		return knowledgeTag;
+	}
+	public void setKnowledgeTag(String knowledgeTag) {
+		this.knowledgeTag = knowledgeTag;
+	}
+
 	private List<Practice> practices;		// 练习
 	
 	private int rightTimes = 0;					//正确次数
