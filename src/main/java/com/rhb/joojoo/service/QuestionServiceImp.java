@@ -1,5 +1,6 @@
 package com.rhb.joojoo.service;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,15 +25,21 @@ public class QuestionServiceImp implements QuestionSevice{
 	private Map<String,Question> questions = null;
 
 	@Override
-	public List<QuestionDTO> getQuestions(String orderBy) {
+	public List<QuestionDTO> getQuestions(String orderBy,String knowledgeTagFilter, String difficultyFilter) {
+		//System.out.println("orderBy:" + orderBy);
+		//System.out.println("filterStr:" + filterStr);
 		if(questions == null){
 			init();
 		}
 		
 		List<QuestionDTO> dtos = new ArrayList<QuestionDTO>();
+		QuestionDTO dto;
+		
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
-			QuestionDTO dto = this.getQuestionDTO(entry.getValue());
-			dtos.add(dto);
+			 dto = this.getQuestionDTO(entry.getValue());
+			 if(dto.isMatchKnowledgedTag(knowledgeTagFilter) && dto.isMatchDifficulty(difficultyFilter)){
+				 dtos.add(dto);				 
+			 }
 		}
 		
 		if("orderByContent".equals(orderBy)){
@@ -49,9 +56,11 @@ public class QuestionServiceImp implements QuestionSevice{
 				public int compare(QuestionDTO dto1, QuestionDTO dto2){
 					int flag = dto2.getWrongRate().compareTo(dto1.getWrongRate());
 					if(flag == 0){
-						flag = dto2.getWrongTimes().compareTo(dto1.getWrongTimes());
+						flag = dto1.getDifficulty().compareTo(dto2.getDifficulty());
 					}
-					
+					if(flag == 0){
+						flag = dto2.getWrongTimes().compareTo(dto1.getWrongTimes());
+					}					
 					return flag;
 				}
 			});
@@ -75,6 +84,7 @@ public class QuestionServiceImp implements QuestionSevice{
 			question.setRightTimes(q.getRightTimes());
 			question.setWrongTimes(q.getWrongTimes());
 			question.setKnowledgeTag(q.getKnowledgeTag());
+			question.setDifficulty(q.getDifficulty());
 			questions.put(question.getId(), question);
 		}
 		
@@ -153,7 +163,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		qe.setRightTimes(question.getRightTimes());
 		qe.setWrongTimes(question.getWrongTimes());
 		qe.setKnowledgeTag(question.getKnowledgeTag());
-		
+		qe.setDifficulty(question.getDifficulty());
 		questionRepository.update(qe);
 	}
 	
@@ -166,8 +176,125 @@ public class QuestionServiceImp implements QuestionSevice{
 		dto.setRightTimes(question.getRightTimes());
 		dto.setWrongTimes(question.getWrongTimes());
 		dto.setKnowledgeTag(question.getKnowledgeTag());
-		
+		dto.setWrongRate(question.getWrongRate());
+		dto.setDifficulty(question.getDifficulty());
 		return dto;
 	}
+	
+	@Override
+	public Map<String,Integer> getWrongRateStatic(){
+		if(questions == null){
+			init();
+		}	
+		
+		NumberFormat numberFormat = NumberFormat.getInstance();  // 创建一个数值格式化对象  
+		numberFormat.setMaximumFractionDigits(2); // 设置精确到小数点后2位  
+		
+		Map<String, Integer> statics = new HashMap<String,Integer>();
+		
+		String wrongRate;
+		Integer i;		
+		for(Map.Entry<String, Question> entry : questions.entrySet()){
+
+			wrongRate = numberFormat.format(entry.getValue().getWrongRate()* 100);
+			//System.out.println(entry.getKey() + ": " + entry.getValue() + ", wrongRate: " + wrongRate);
+			//wrongRate = new java.text.DecimalFormat(".##").format(entry.getValue().getWrongRate());
+			if(statics.containsKey(wrongRate)){
+				i = statics.get(wrongRate) + 1;
+			}else{
+				i = 1;
+			}
+			statics.put(wrongRate, i);
+		}		
+		return statics;
+
+	}
+
+	@Override
+	public Map<String, Integer> getKnowledgeTagStatics() {
+		if(questions == null){
+			init();
+		}
+		
+		Map<String, Integer> statics = new HashMap<String,Integer>();
+		String[] tags;
+		for(Map.Entry<String, Question> entry : questions.entrySet()){
+			if(entry.getValue().getKnowledgeTag()!=null){
+				tags = entry.getValue().getKnowledgeTag().split(" ");
+				for(String tag : tags){
+					if(!tag.trim().isEmpty()){
+						if(statics.containsKey(tag)){
+							statics.put(tag, statics.get(tag) + 1);
+						}else{
+							statics.put(tag, 1);
+						}	
+					}
+				}
+			}
+		}
+		
+		return statics;
+	}
+
+	@Override
+	public Map<String, Integer> getDifficulty(String wrongRateFilter) {
+		if(questions == null){
+			init();
+		}
+
+		NumberFormat numberFormat = NumberFormat.getInstance();  // 创建一个数值格式化对象  
+		numberFormat.setMaximumFractionDigits(2); // 设置精确到小数点后2位  
+
+		
+		Map<String, Integer> statics = new HashMap<String,Integer>();
+		String[] tags;
+		String diff;
+		String wrongRate;
+		for(Map.Entry<String, Question> entry : questions.entrySet()){
+			wrongRate = numberFormat.format(entry.getValue().getWrongRate()* 100);
+			
+			if(wrongRateFilter.trim().isEmpty()){
+				diff = entry.getValue().getDifficulty().toString();
+				if(statics.containsKey(diff)){
+					statics.put(diff, statics.get(diff) + 1);
+				}else{
+					statics.put(diff, 1);
+				}	
+			}else{
+				if(wrongRate.equals(wrongRateFilter)){
+					//System.out.println("there is one match " + wrongRateFilter);
+					diff = entry.getValue().getDifficulty().toString();
+					if(statics.containsKey(diff)){
+						statics.put(diff, statics.get(diff) + 1);
+					}else{
+						statics.put(diff, 1);
+					}
+				}
+			}
+		}
+		
+		return statics;
+	}
+	
+	private Integer getInteger(String str){
+		try{
+			return Integer.parseInt(str);
+		}catch(Exception e){
+			return null;
+		}
+	}
+
+	
+	@Override
+	public void updateDifficulty(String id, int i) {
+		if(questions.containsKey(id)){
+			Question question = questions.get(id);
+			
+			question.setDifficulty(i);;
+			//持久化
+			this.persist(question);
+		}				
+	}
+
 
 }

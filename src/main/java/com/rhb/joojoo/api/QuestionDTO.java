@@ -1,5 +1,6 @@
 package com.rhb.joojoo.api;
 
+
 public class QuestionDTO {
 	private String id;
 	private String originalImage;  			// 原题图片
@@ -10,8 +11,55 @@ public class QuestionDTO {
 	private Integer rightTimes = 0;					//正确次数
 	private Integer wrongTimes = 1;					//错误次数
 	private String knowledgeTag;	//知识点标签
+	private Float wrongRate;
+	private Integer difficulty = 0;
 	
+	private boolean isInteger(String str){
+		try {  
+	         Integer.parseInt(str);  
+	         return true;  
+	     } catch (NumberFormatException e) {  
+	         return false;  
+	     } 
+	}
 	
+	public boolean isMatchKnowledgedTag(String knowledgeTagFilter){
+		boolean flag = false;
+		if(knowledgeTagFilter==null || knowledgeTagFilter.isEmpty()){
+			flag = true;
+		}else if(this.getKnowledgeTag()!=null && this.getKnowledgeTag().indexOf(knowledgeTagFilter) != -1){
+			flag = true;
+		}
+		return flag;
+	}
+	
+	public boolean isMatchDifficulty(String difficultyFilter){
+		boolean flag = false;
+		if(difficultyFilter==null || difficultyFilter.isEmpty()  || !isInteger(difficultyFilter)){
+			flag = true;
+		}else if(this.getDifficulty().equals(Integer.parseInt(difficultyFilter))){
+			//System.out.println("match difficulty is true!");
+			flag = true;
+		}
+		return flag;
+	}
+	
+	public Integer getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(Integer difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	public Float getWrongRate() {
+		return wrongRate;
+	}
+
+	public void setWrongRate(Float wrongRate) {
+		this.wrongRate = wrongRate;
+	}
+
 	public String getKnowledgeTag() {
 		return knowledgeTag;
 	}
@@ -19,11 +67,7 @@ public class QuestionDTO {
 	public void setKnowledgeTag(String knowledgeTag) {
 		this.knowledgeTag = knowledgeTag;
 	}
-	
-	public Double getWrongRate(){
-		return new Double(wrongTimes/(rightTimes + wrongTimes));
-	}
-	
+		
 	public String getId() {
 		return id;
 	}

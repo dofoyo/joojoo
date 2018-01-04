@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rhb.joojoo.util.ImageTool;
 
 @Repository("QuestionRepositoryImp")
 public class QuestionRepositoryImp implements QuestionRepository {
@@ -77,7 +78,8 @@ public class QuestionRepositoryImp implements QuestionRepository {
 					question.setContent(q.getContent());
 					question.setRightTimes(q.getRightTimes());
 					question.setWrongTimes(q.getWrongTimes());
-					
+					question.setKnowledgeTag(q.getKnowledgeTag());
+					question.setDifficulty(q.getDifficulty());
 					//System.out.println("content: " + q.getContent());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -131,7 +133,13 @@ public class QuestionRepositoryImp implements QuestionRepository {
 	
 	
 	private String[] getOriginalImages() {
-        return this.getImages(rootPath.substring(6));
+		String[] files = this.getImages(rootPath.substring(6));
+		String pathAndFile;
+		for(String file : files){
+			pathAndFile = rootPath.substring(6) + file;
+			ImageTool.scale2(pathAndFile, pathAndFile, 600, 800, false);
+		}
+        return files;
      }
 
 	

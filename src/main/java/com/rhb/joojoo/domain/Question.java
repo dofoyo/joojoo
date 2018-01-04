@@ -10,6 +10,27 @@ public class Question {
 	private String contentImage;  			// 题目图片
 	private Set<String> knowledgeTags;		// 知识点标签（追击、相遇...)
 	private String knowledgeTag;	//知识点标签
+	private List<Practice> practices;		// 练习
+	private Integer difficulty = 0;  //难度,0-最简单，1-较简单，2-简单，3-难，4较难，5-最难
+	
+	private int rightTimes = 0;					//正确次数
+	private int wrongTimes = 1;					//错误次数
+	
+	
+	
+	public Integer getDifficulty() {
+		return difficulty;
+	}
+
+	public void setDifficulty(Integer difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	public Float getWrongRate(){
+		int times = this.rightTimes + this.wrongTimes;
+		return new Float((float)wrongTimes/(float)times);
+	}
+	
 	public String getKnowledgeTag() {
 		return knowledgeTag;
 	}
@@ -17,11 +38,6 @@ public class Question {
 		this.knowledgeTag = knowledgeTag;
 	}
 
-	private List<Practice> practices;		// 练习
-	
-	private int rightTimes = 0;					//正确次数
-	private int wrongTimes = 1;					//错误次数
-	
 	public String getId() {
 		return id;
 	}
