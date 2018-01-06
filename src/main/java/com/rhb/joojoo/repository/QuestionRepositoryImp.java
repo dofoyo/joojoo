@@ -80,6 +80,7 @@ public class QuestionRepositoryImp implements QuestionRepository {
 					question.setWrongTimes(q.getWrongTimes());
 					question.setKnowledgeTag(q.getKnowledgeTag());
 					question.setDifficulty(q.getDifficulty());
+					question.setWrongTag((q.getWrongTag()));
 					//System.out.println("content: " + q.getContent());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

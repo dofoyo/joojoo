@@ -146,6 +146,19 @@ public class ProblemControllerImp implements ProblemController {
     	//System.out.println("updateKnowledgeTag " + id + ", " + body);
     }
 
+    @PutMapping("/question_wrongTag")
+    public void updateWrongTag(@RequestParam(value="id") String id, @RequestBody String body){
+    	ObjectMapper mapper = new ObjectMapper();
+    	try {
+			QuestionDTO dto = mapper.readValue(body, QuestionDTO.class);
+			questionService.updateWrongTag(id, dto.getWrongTag());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	//System.out.println("updateKnowledgeTag " + id + ", " + body);
+    }
+
     
     @PutMapping("/question_right")
     public void updateRightTimes(@RequestParam(value="id") String id, @RequestBody String body){

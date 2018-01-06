@@ -9,9 +9,16 @@ public class QuestionEntity {
 	private int wrongTimes = 1;					//错误次数
 	private String KnowledgeTag;				//知识点
 	private Integer difficulty = 0;
+	private String wrongTag;				//错误点
 	
 	
 	
+	public String getWrongTag() {
+		return wrongTag;
+	}
+	public void setWrongTag(String wrongTag) {
+		this.wrongTag = wrongTag;
+	}
 	public Integer getDifficulty() {
 		return difficulty;
 	}

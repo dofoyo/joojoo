@@ -85,6 +85,7 @@ public class QuestionServiceImp implements QuestionSevice{
 			question.setWrongTimes(q.getWrongTimes());
 			question.setKnowledgeTag(q.getKnowledgeTag());
 			question.setDifficulty(q.getDifficulty());
+			question.setWrongTag(q.getWrongTag());
 			questions.put(question.getId(), question);
 		}
 		
@@ -125,6 +126,17 @@ public class QuestionServiceImp implements QuestionSevice{
 		}
 	}
 
+	@Override
+	public void updateWrongTag(String id, String wrongTag) {
+		//System.out.println("questionServiceImp.updateContent(" + id + "," + content + ")");	
+		if(questions.containsKey(id)){
+			Question question = questions.get(id);
+			//更新domain对象
+			question.setWrongTag(wrongTag);
+			//持久化
+			this.persist(question);
+		}
+	}
 	
 	@Override
 	public void refresh() {
@@ -164,6 +176,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		qe.setWrongTimes(question.getWrongTimes());
 		qe.setKnowledgeTag(question.getKnowledgeTag());
 		qe.setDifficulty(question.getDifficulty());
+		qe.setWrongTag(question.getWrongTag());
 		questionRepository.update(qe);
 	}
 	
@@ -178,6 +191,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		dto.setKnowledgeTag(question.getKnowledgeTag());
 		dto.setWrongRate(question.getWrongRate());
 		dto.setDifficulty(question.getDifficulty());
+		dto.setWrongTag(question.getWrongTag());
 		return dto;
 	}
 	

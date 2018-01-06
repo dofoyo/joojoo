@@ -15,9 +15,18 @@ public class Question {
 	
 	private int rightTimes = 0;					//正确次数
 	private int wrongTimes = 1;					//错误次数
+	private String wrongTag; //错误原因标签
 	
 	
 	
+	public String getWrongTag() {
+		return wrongTag;
+	}
+
+	public void setWrongTag(String wrongTag) {
+		this.wrongTag = wrongTag;
+	}
+
 	public Integer getDifficulty() {
 		return difficulty;
 	}

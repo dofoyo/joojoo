@@ -13,7 +13,17 @@ public class QuestionDTO {
 	private String knowledgeTag;	//知识点标签
 	private Float wrongRate;
 	private Integer difficulty = 0;
+	private String wrongTag;	//错误点
+
 	
+	public String getWrongTag() {
+		return wrongTag;
+	}
+
+	public void setWrongTag(String wrongTag) {
+		this.wrongTag = wrongTag;
+	}
+
 	private boolean isInteger(String str){
 		try {  
 	         Integer.parseInt(str);  
