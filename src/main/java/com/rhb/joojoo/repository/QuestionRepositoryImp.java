@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rhb.joojoo.util.ImageTool;
@@ -41,60 +42,6 @@ public class QuestionRepositoryImp implements QuestionRepository {
 		}
 	}
 
-	@Override
-	public List<QuestionEntity> getQuestions() {
-		Map<String,QuestionEntity> questions = new HashMap<String,QuestionEntity>();
-		
-		QuestionEntity question = null;
-		String id = null;
-		
-		String[] originalImages = this.getOriginalImages();
-		for(String originalImage : originalImages){
-			question = new QuestionEntity();
-			question.setOriginalImage(originalImage);
-			question.setId(originalImage);
-		
-			questions.put(originalImage, question);
-		}
-
-		String[] contentImages = this.getContentImages();		
-		for(String contentImage : contentImages){
-			if(questions.containsKey(contentImage)){
-				question = questions.get(contentImage);
-				question.setContentImage(contentImage);
-			}
-		}
-		
-		String[] jsons = this.getJsons();
-		
-		for(String json : jsons){
-			
-			if(questions.containsKey(json.substring(0, json.indexOf(".json")))){
-				//System.out.println(json);
-				ObjectMapper mapper = new ObjectMapper();
-				try {
-					QuestionEntity q = mapper.readValue(new File(rootPath.substring(6) + json), QuestionEntity.class);
-					question = questions.get(json.substring(0, json.indexOf(".json")));
-					question.setContent(q.getContent());
-					question.setRightTimes(q.getRightTimes());
-					question.setWrongTimes(q.getWrongTimes());
-					question.setKnowledgeTag(q.getKnowledgeTag());
-					question.setDifficulty(q.getDifficulty());
-					question.setWrongTag((q.getWrongTag()));
-					//System.out.println("content: " + q.getContent());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		}
-		
-
-		
-		return new ArrayList<QuestionEntity>(questions.values());
-	}
-
 	private String[] getJsons(){
 		String[] jsons = null;
 		
@@ -121,7 +68,7 @@ public class QuestionRepositoryImp implements QuestionRepository {
         if (dir.exists()) {  
         	images = dir.list(new FilenameFilter(){ 
                 public boolean accept(File dir,String fname){ 
-                    return (fname.toLowerCase().endsWith(".jpg"));  
+                    return (fname.toLowerCase().endsWith(".jpg") || fname.toLowerCase().endsWith(".png"));  
                  }});
         }else{
             System.out.println("**********  error: '" + path + "' do not exit");          	
@@ -130,23 +77,66 @@ public class QuestionRepositoryImp implements QuestionRepository {
         return images;
 	}
 
-	
-	
-	
 	private String[] getOriginalImages() {
 		String[] files = this.getImages(rootPath.substring(6));
 		String pathAndFile;
 		for(String file : files){
 			pathAndFile = rootPath.substring(6) + file;
-			ImageTool.scale2(pathAndFile, pathAndFile, 600, 800, false);
+			ImageTool.scale2(pathAndFile, pathAndFile, 768, 1024, false);
 		}
         return files;
      }
 
 	
-	private String[] getContentImages() {
+	public String[] getContentImages() {
 		String contentImagePath = rootPath + "content";
         return this.getImages(contentImagePath.substring(6));
+	}
+
+	@Override
+	public List<QuestionEntity> getQuestionEntities() {
+		Map<String,QuestionEntity> questions = new HashMap<String,QuestionEntity>();
+		
+		QuestionEntity question = null;
+		String id = null;
+		
+		String[] originalImages = this.getOriginalImages();
+		for(String originalImage : originalImages){
+			question = new QuestionEntity();
+			question.setId(originalImage);
+			questions.put(originalImage, question);
+		}
+
+		String[] jsons = this.getJsons();		
+		for(String json : jsons){
+			if(questions.containsKey(json.substring(0, json.indexOf(".json")))){
+				//System.out.println(json);
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+				try {
+					QuestionEntity q = mapper.readValue(new File(rootPath.substring(6) + json), QuestionEntity.class);
+					question = questions.get(json.substring(0, json.indexOf(".json")));
+					question.setContent(q.getContent());
+					question.setRightTimes(q.getRightTimes());
+					question.setWrongTimes(q.getWrongTimes());
+					question.setKnowledgeTag(q.getKnowledgeTag());
+					question.setDifficulty(q.getDifficulty());
+					question.setWrongTag((q.getWrongTag()));
+					//System.out.println("content: " + q.getContent());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}
+		return new ArrayList<QuestionEntity>(questions.values());
+	}
+
+	@Override
+	public String[] getWrongImages() {
+		String imagePath = rootPath + "wrong";
+        return this.getImages(imagePath.substring(6));
 	}
 
 	

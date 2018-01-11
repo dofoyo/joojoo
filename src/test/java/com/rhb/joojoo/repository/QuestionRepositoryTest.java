@@ -17,12 +17,10 @@ public class QuestionRepositoryTest {
 	
 	@Test
 	public void test3(){
-		List<QuestionEntity> questions = questionRepository.getQuestions();
+		List<QuestionEntity> questions = questionRepository.getQuestionEntities();
 		for(QuestionEntity q : questions){
 			System.out.println(q.getId());
-			System.out.println(q.getOriginalImage());
 			System.out.println(q.getContent());
-			System.out.println(q.getContentImage());
 		}
 	}
 }

@@ -14,8 +14,28 @@ public class QuestionDTO {
 	private Float wrongRate;
 	private Integer difficulty = 0;
 	private String wrongTag;	//错误点
+	private String[] worngImages; //错题图片
+	private String[] worngImageUrls;  
 
 	
+	
+	
+	public String[] getWorngImageUrls() {
+		return worngImageUrls;
+	}
+
+	public void setWorngImageUrls(String[] worngImageUrls) {
+		this.worngImageUrls = worngImageUrls;
+	}
+
+	public String[] getWorngImages() {
+		return worngImages;
+	}
+
+	public void setWorngImages(String[] worngImages) {
+		this.worngImages = worngImages;
+	}
+
 	public String getWrongTag() {
 		return wrongTag;
 	}
@@ -31,6 +51,16 @@ public class QuestionDTO {
 	     } catch (NumberFormatException e) {  
 	         return false;  
 	     } 
+	}
+
+	public boolean isMatchWrongTag(String wrongTagFilter){
+		boolean flag = false;
+		if(wrongTagFilter==null || wrongTagFilter.isEmpty()){
+			flag = true;
+		}else if(this.getWrongTag()!=null && this.getWrongTag().indexOf(wrongTagFilter) != -1){
+			flag = true;
+		}
+		return flag;
 	}
 	
 	public boolean isMatchKnowledgedTag(String knowledgeTagFilter){

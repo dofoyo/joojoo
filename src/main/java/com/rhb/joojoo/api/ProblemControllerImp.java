@@ -24,6 +24,8 @@ public class ProblemControllerImp implements ProblemController {
 	
 	private static final String contentImageUrl = "http://localhost:8081/contentImage/";
 	private static final String originalImageUrl = "http://localhost:8081/originalImage/";
+	private static final String wrongImageUrl = "http://localhost:8081/wrongImage/";
+
 
 	@GetMapping("/difficulty")
 	public ResponseContent<List<DifficultyDTO>> getDifficulty(@RequestParam(value="wrongRateFilter", defaultValue="") String wrongRateFilter) {
@@ -86,15 +88,17 @@ public class ProblemControllerImp implements ProblemController {
 	@Override
 	@GetMapping("/questions")
 	public ResponseContent<List<QuestionDTO>> getQuestions(@RequestParam(value="orderBy", defaultValue="") String orderBy,
-						@RequestParam(value="knowledgeTagFilter", defaultValue="") String knowledgeTagFilter,
+			@RequestParam(value="knowledgeTagFilter", defaultValue="") String knowledgeTagFilter,
+			@RequestParam(value="wrongTagFilter", defaultValue="") String wrongTagFilter,
 						@RequestParam(value="difficultyFilter", defaultValue="") String difficultyFilter) {
 		List<QuestionDTO> questions = null;
-		questions = questionService.getQuestions(orderBy,knowledgeTagFilter,difficultyFilter);
+		questions = questionService.getQuestions(orderBy,knowledgeTagFilter,wrongTagFilter,difficultyFilter);
 		
 		String curl = null;
 		for(QuestionDTO question : questions){
 			question.setContentImageUrl(this.getContentImageUrl(question.getContentImage()));
 			question.setOriginalImageUrl(originalImageUrl + question.getOriginalImage());
+			question.setWorngImageUrls(this.getWrongImageUrl(question.getWorngImages()));
 		}
 		
 		return new ResponseContent<List<QuestionDTO>>(ResponseEnum.SUCCESS,questions);
@@ -174,19 +178,7 @@ public class ProblemControllerImp implements ProblemController {
     	//System.out.println("update content " + id + ", " + body);
     }
   
-    @PutMapping("/question_wrong")
-    public void updateWrongTimes(@RequestParam(value="id") String id, @RequestBody String body){
-    	ObjectMapper mapper = new ObjectMapper();
-    	try {
-			QuestionDTO dto = mapper.readValue(body, QuestionDTO.class);
-			questionService.wrong(id, dto.getWrongTimes());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	//System.out.println("update content " + id + ", " + body);
-    }
-    
+ 
     @PutMapping("/question_difficulty")
     public void updateDifficulty(@RequestParam(value="id") String id, @RequestBody String body){
     	ObjectMapper mapper = new ObjectMapper();
@@ -209,6 +201,19 @@ public class ProblemControllerImp implements ProblemController {
     		url = "";
     	}
     	return url;
+    }
+    
+    private String[] getWrongImageUrl(String[] wrongImages){
+    	String[] urls = new String[wrongImages.length];
+    	for(int i=0; i<wrongImages.length; i++){
+        	if(wrongImages[i]!=null && !wrongImages[i].equals("null") && !wrongImages[i].isEmpty()){
+        		urls[i] = wrongImageUrl + wrongImages[i];
+        	}else{
+        		urls[i] = "";
+        	}
+    		
+    	}
+    	return urls;
     }
 
 }

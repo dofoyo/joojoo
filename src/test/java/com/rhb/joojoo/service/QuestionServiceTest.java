@@ -18,18 +18,22 @@ public class QuestionServiceTest {
 	@Autowired
 	QuestionSevice questionService;
 	
-	//@Test
+	@Test
 	public void testGetQuestions(){
 		List<QuestionDTO> dtos = questionService.getQuestions("", "","");
 		for(QuestionDTO dto : dtos){
-			System.out.println(dto.getOriginalImage());
-			System.out.println(dto.getContent());
-			System.out.println(dto.getContentImage());
-			System.out.println(dto.getWrongTimes() + "/(" + dto.getRightTimes() + "+"  + dto.getWrongTimes() + ") = " + dto.getWrongRate());
+			if(dto.getWrongTimes() != dto.getWorngImages().length+1){
+				System.out.println(dto.getContent());
+				System.out.println(dto.getOriginalImage());
+				System.out.println(dto.getWrongTimes());
+				System.out.println(dto.getWorngImages().length+1);
+				
+			}
+			
 		}
 	}
 	
-	@Test
+	//@Test
 	public void testGetWrongRateStatic(){
 		Map<String,Integer> m = questionService.getWrongRateStatic();
 		for(Map.Entry<String,Integer> mapEntry : m.entrySet()){

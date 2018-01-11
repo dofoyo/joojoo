@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,11 @@ public class QuestionServiceImp implements QuestionSevice{
 	QuestionRepository questionRepository;
 	
 	private Map<String,Question> questions = null;
+	private String[] contentImages = null;
+	private String[] wrongImages = null;
 
 	@Override
-	public List<QuestionDTO> getQuestions(String orderBy,String knowledgeTagFilter, String difficultyFilter) {
+	public List<QuestionDTO> getQuestions(String orderBy,String knowledgeTagFilter,String wrongTagFilter, String difficultyFilter) {
 		//System.out.println("orderBy:" + orderBy);
 		//System.out.println("filterStr:" + filterStr);
 		if(questions == null){
@@ -37,7 +41,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
 			 dto = this.getQuestionDTO(entry.getValue());
-			 if(dto.isMatchKnowledgedTag(knowledgeTagFilter) && dto.isMatchDifficulty(difficultyFilter)){
+			 if(dto.isMatchKnowledgedTag(knowledgeTagFilter) && dto.isMatchDifficulty(difficultyFilter) && dto.isMatchWrongTag(wrongTagFilter)){
 				 dtos.add(dto);				 
 			 }
 		}
@@ -72,24 +76,54 @@ public class QuestionServiceImp implements QuestionSevice{
 		System.out.println(" QuestionServiceImp init ...........");
 		
 		questions = new HashMap<String,Question>();
+		contentImages = questionRepository.getContentImages();
+		wrongImages = questionRepository.getWrongImages();
+		List<QuestionEntity> QuestionEntities = questionRepository.getQuestionEntities();
+		
 		Question question = null;
 		
-		List<QuestionEntity> QuestionEntities = questionRepository.getQuestions();
 		for(QuestionEntity q : QuestionEntities){
 			question = new Question();
-			question.setOriginalImage(q.getOriginalImage());
+			question.setOriginalImage(q.getId());
 			question.setId(q.getId());
-			question.setContentImage(q.getContentImage());
 			question.setContent(q.getContent());
 			question.setRightTimes(q.getRightTimes());
-			question.setWrongTimes(q.getWrongTimes());
 			question.setKnowledgeTag(q.getKnowledgeTag());
 			question.setDifficulty(q.getDifficulty());
 			question.setWrongTag(q.getWrongTag());
+			
+			question.setContentImage(this.getContentImage(q.getId()));
+			question.addWrongImages(this.getWrongImages(q.getId()));
+			
 			questions.put(question.getId(), question);
 		}
 		
 	}
+	
+	private String getContentImage(String id){
+		String image = "";
+		for(int i=0; i<this.contentImages.length; i++){
+			if(id.equals(this.contentImages[i])){
+				image = this.contentImages[i];
+				break;
+			}
+		}
+		return image;
+	}
+
+	private String[] getWrongImages(String id){
+		Set<String> image = new HashSet<String>();
+		String str = id.substring(0, id.length()-4);
+		for(int i=0; i<this.wrongImages.length; i++){
+			if(this.wrongImages[i].indexOf(str) != -1){
+				//System.out.println("*********** " + this.wrongImages[i] +  " ******");
+				image.add(this.wrongImages[i]);
+			}
+		}
+		return image.toArray(new String[0]);
+	}
+
+	
 
 	@Override
 	public QuestionDTO getQuestion(String id) {
@@ -140,6 +174,7 @@ public class QuestionServiceImp implements QuestionSevice{
 	
 	@Override
 	public void refresh() {
+		System.out.println("refresh......");
 		this.init();
 		
 	}
@@ -155,23 +190,11 @@ public class QuestionServiceImp implements QuestionSevice{
 		}		
 	}
 
-	@Override
-	public void wrong(String id, int i) {
-		if(questions.containsKey(id)){
-			Question question = questions.get(id);
-			
-			question.setWrongTimes(i);
-			//持久化
-			this.persist(question);
-		}		
-	}
-	
+
 	private void persist(Question question){
 		QuestionEntity qe = new QuestionEntity();
 		qe.setId(question.getId());
 		qe.setContent(question.getContent());
-		qe.setContentImage(question.getContentImage());
-		qe.setOriginalImage(question.getOriginalImage());
 		qe.setRightTimes(question.getRightTimes());
 		qe.setWrongTimes(question.getWrongTimes());
 		qe.setKnowledgeTag(question.getKnowledgeTag());
@@ -192,6 +215,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		dto.setWrongRate(question.getWrongRate());
 		dto.setDifficulty(question.getDifficulty());
 		dto.setWrongTag(question.getWrongTag());
+		dto.setWorngImages(question.getWrongImages().toArray(new String[0]));
 		return dto;
 	}
 	

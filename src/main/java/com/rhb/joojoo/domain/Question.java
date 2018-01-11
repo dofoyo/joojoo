@@ -1,5 +1,6 @@
 package com.rhb.joojoo.domain;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,11 +15,24 @@ public class Question {
 	private Integer difficulty = 0;  //难度,0-最简单，1-较简单，2-简单，3-难，4较难，5-最难
 	
 	private int rightTimes = 0;					//正确次数
-	private int wrongTimes = 1;					//错误次数
 	private String wrongTag; //错误原因标签
 	
+	private Set<String> wrongImages = new HashSet<String>();
 	
+	public void addWrongImage(String image){
+		this.wrongImages.add(image);
+	}
 	
+	public void addWrongImages(String[] images){
+		for(String image : images){
+			this.addWrongImage(image);
+		}
+	}
+	
+	public Set<String> getWrongImages() {
+		return wrongImages;
+	}
+
 	public String getWrongTag() {
 		return wrongTag;
 	}
@@ -36,8 +50,8 @@ public class Question {
 	}
 
 	public Float getWrongRate(){
-		int times = this.rightTimes + this.wrongTimes;
-		return new Float((float)wrongTimes/(float)times);
+		int times = this.rightTimes + this.getWrongTimes();
+		return new Float((float)this.getWrongTimes()/(float)times);
 	}
 	
 	public String getKnowledgeTag() {
@@ -91,18 +105,11 @@ public class Question {
 	}
 	
 	public int getWrongTimes() {
-		return wrongTimes;
+		return this.wrongImages.size()+1;
 	}
-	public void setWrongTimes(int wrongTimes) {
-		this.wrongTimes = wrongTimes;
-	}
+
 	public void right(int i){
 		this.rightTimes = this.rightTimes + i;
 	}
-	
-	public void wrong(int i){
-		this.wrongTimes = this.wrongTimes + i;
-	}
-	
 
 }
