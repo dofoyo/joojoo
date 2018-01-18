@@ -29,7 +29,13 @@ public class QuestionServiceImp implements QuestionSevice{
 	private String[] wrongImages = null;
 
 	@Override
-	public List<QuestionDTO> getQuestions(String orderBy,String knowledgeTagFilter,String wrongTagFilter, String difficultyFilter) {
+	public List<QuestionDTO> getQuestions(
+			String orderBy,
+			String keywordFilter,
+			String knowledgeTagFilter,
+			String wrongTagFilter, 
+			String difficultyFilter,
+			String wrongRateFilter) {
 		//System.out.println("orderBy:" + orderBy);
 		//System.out.println("filterStr:" + filterStr);
 		if(questions == null){
@@ -41,7 +47,11 @@ public class QuestionServiceImp implements QuestionSevice{
 		
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
 			 dto = this.getQuestionDTO(entry.getValue());
-			 if(dto.isMatchKnowledgedTag(knowledgeTagFilter) && dto.isMatchDifficulty(difficultyFilter) && dto.isMatchWrongTag(wrongTagFilter)){
+			 if(dto.isMatchKnowledgedTag(knowledgeTagFilter) &&
+					 dto.isMatchDifficulty(difficultyFilter) && 
+					 dto.isMatchKeyword(keywordFilter) && 
+					 dto.isMatchWrongTag(wrongTagFilter) &&
+					 dto.isMatchWrongRate(wrongRateFilter)){
 				 dtos.add(dto);				 
 			 }
 		}
@@ -58,7 +68,9 @@ public class QuestionServiceImp implements QuestionSevice{
 		}else{
 			Collections.sort(dtos, new Comparator<QuestionDTO>(){
 				public int compare(QuestionDTO dto1, QuestionDTO dto2){
-					int flag = dto2.getWrongRate().compareTo(dto1.getWrongRate());
+					Integer rate2 = Integer.parseInt(dto2.getWrongRate());
+					Integer rate1 = Integer.parseInt(dto1.getWrongRate());
+					int flag = rate2.compareTo(rate1);
 					if(flag == 0){
 						flag = dto1.getDifficulty().compareTo(dto2.getDifficulty());
 					}
@@ -91,6 +103,7 @@ public class QuestionServiceImp implements QuestionSevice{
 			question.setKnowledgeTag(q.getKnowledgeTag());
 			question.setDifficulty(q.getDifficulty());
 			question.setWrongTag(q.getWrongTag());
+			question.setSchool(q.getSchool());
 			
 			question.setContentImage(this.getContentImage(q.getId()));
 			question.addWrongImages(this.getWrongImages(q.getId()));
@@ -200,6 +213,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		qe.setKnowledgeTag(question.getKnowledgeTag());
 		qe.setDifficulty(question.getDifficulty());
 		qe.setWrongTag(question.getWrongTag());
+		qe.setSchool(question.getSchool());
 		questionRepository.update(qe);
 	}
 	
@@ -212,9 +226,9 @@ public class QuestionServiceImp implements QuestionSevice{
 		dto.setRightTimes(question.getRightTimes());
 		dto.setWrongTimes(question.getWrongTimes());
 		dto.setKnowledgeTag(question.getKnowledgeTag());
-		dto.setWrongRate(question.getWrongRate());
 		dto.setDifficulty(question.getDifficulty());
 		dto.setWrongTag(question.getWrongTag());
+		dto.setSchool(question.getSchool());
 		dto.setWorngImages(question.getWrongImages().toArray(new String[0]));
 		return dto;
 	}
@@ -248,6 +262,32 @@ public class QuestionServiceImp implements QuestionSevice{
 
 	}
 
+	@Override
+	public Map<String, Integer> getWrongTagStatics() {
+		if(questions == null){
+			init();
+		}
+		
+		Map<String, Integer> statics = new HashMap<String,Integer>();
+		String[] tags;
+		for(Map.Entry<String, Question> entry : questions.entrySet()){
+			if(entry.getValue().getWrongTag()!=null){
+				tags = entry.getValue().getWrongTag().split(" ");
+				for(String tag : tags){
+					if(!tag.trim().isEmpty()){
+						if(statics.containsKey(tag)){
+							statics.put(tag, statics.get(tag) + 1);
+						}else{
+							statics.put(tag, 1);
+						}	
+					}
+				}
+			}
+		}
+		
+		return statics;
+	}
+	
 	@Override
 	public Map<String, Integer> getKnowledgeTagStatics() {
 		if(questions == null){

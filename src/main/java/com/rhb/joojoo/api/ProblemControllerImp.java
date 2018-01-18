@@ -66,13 +66,48 @@ public class ProblemControllerImp implements ProblemController {
 		return new ResponseContent<List<WrongRateStatisticsDTO>>(ResponseEnum.SUCCESS,list);
 	}	
 	
+	@GetMapping("/wrongTags")
+	public ResponseContent<List<WrongTagStatisticsDTO>> getWrongTags() {
+		Map<String,Integer> tags = questionService.getWrongTagStatics();
+		List<WrongTagStatisticsDTO> list = new ArrayList<WrongTagStatisticsDTO>();
+		int total = 0;
+		for(Map.Entry<String, Integer> entry : tags.entrySet()){
+			total += entry.getValue();
+			list.add(new WrongTagStatisticsDTO(entry.getKey(), entry.getValue()));
+		}
+		
+		Collections.sort(list, new Comparator<WrongTagStatisticsDTO>(){
+			public int compare(WrongTagStatisticsDTO dto1, WrongTagStatisticsDTO dto2){
+				return dto2.getValue().compareTo(dto1.getValue());
+			}
+		});
+		
+		List<WrongTagStatisticsDTO> list2 = new ArrayList<WrongTagStatisticsDTO>();
+		int eighty = 0;
+		int other = 0;
+		for(WrongTagStatisticsDTO dto : list){
+			eighty += dto.getValue();
+			if((float)eighty/(float)total > 0.9){
+				other += dto.getValue();
+			}else{
+				list2.add(new WrongTagStatisticsDTO(dto.getName(), dto.getValue()));
+			}
+		}
+		list2.add(new WrongTagStatisticsDTO("other", other));
+
+		
+		
+		return new ResponseContent<List<WrongTagStatisticsDTO>>(ResponseEnum.SUCCESS,list2);
+	}	
+	
 	
 	@GetMapping("/knowledgeTags")
 	public ResponseContent<List<KnowledgeTagStatisticsDTO>> getKnowledgeTags() {
 		Map<String,Integer> tags = questionService.getKnowledgeTagStatics();
-		KnowledgeTagStatisticsDTO dto;
 		List<KnowledgeTagStatisticsDTO> list = new ArrayList<KnowledgeTagStatisticsDTO>();
+		int total = 0;
 		for(Map.Entry<String, Integer> entry : tags.entrySet()){
+			total += entry.getValue();
 			list.add(new KnowledgeTagStatisticsDTO(entry.getKey(), entry.getValue()));
 		}
 		
@@ -82,26 +117,56 @@ public class ProblemControllerImp implements ProblemController {
 			}
 		});
 		
-		return new ResponseContent<List<KnowledgeTagStatisticsDTO>>(ResponseEnum.SUCCESS,list);
+		
+		List<KnowledgeTagStatisticsDTO> list2 = new ArrayList<KnowledgeTagStatisticsDTO>();
+		int eighty = 0;
+		int other = 0;
+		for(KnowledgeTagStatisticsDTO dto : list){
+			eighty += dto.getValue();
+			if((float)eighty/(float)total > 0.9){
+				other += dto.getValue();
+			}else{
+				list2.add(new KnowledgeTagStatisticsDTO(dto.getName(), dto.getValue()));
+			}
+		}
+		list2.add(new KnowledgeTagStatisticsDTO("other", other));
+
+		
+		return new ResponseContent<List<KnowledgeTagStatisticsDTO>>(ResponseEnum.SUCCESS,list2);
 	}	
 	
 	@Override
 	@GetMapping("/questions")
-	public ResponseContent<List<QuestionDTO>> getQuestions(@RequestParam(value="orderBy", defaultValue="") String orderBy,
+	public ResponseContent<List<QuestionDTO>> getQuestions(
+			@RequestParam(value="orderBy", defaultValue="") String orderBy,
+			@RequestParam(value="keywordFilter", defaultValue="") String keywordFilter,
 			@RequestParam(value="knowledgeTagFilter", defaultValue="") String knowledgeTagFilter,
 			@RequestParam(value="wrongTagFilter", defaultValue="") String wrongTagFilter,
-						@RequestParam(value="difficultyFilter", defaultValue="") String difficultyFilter) {
-		List<QuestionDTO> questions = null;
-		questions = questionService.getQuestions(orderBy,knowledgeTagFilter,wrongTagFilter,difficultyFilter);
+			@RequestParam(value="difficultyFilter", defaultValue="") String difficultyFilter,
+			@RequestParam(value="wrongRateFilter", defaultValue="") String wrongRateFilter,
+			@RequestParam(value="count", defaultValue="20") Integer count){
+		
+		List<QuestionDTO> questions = questionService.getQuestions(orderBy,keywordFilter,knowledgeTagFilter,wrongTagFilter,difficultyFilter,wrongRateFilter);
+		
+		List<QuestionDTO> list = new ArrayList<QuestionDTO>();
 		
 		String curl = null;
-		for(QuestionDTO question : questions){
+		QuestionDTO question;
+		for(int i=0; i<count && i<questions.size(); i++){
+			question = questions.get(i);
 			question.setContentImageUrl(this.getContentImageUrl(question.getContentImage()));
 			question.setOriginalImageUrl(originalImageUrl + question.getOriginalImage());
 			question.setWorngImageUrls(this.getWrongImageUrl(question.getWorngImages()));
+			list.add(question);
 		}
 		
-		return new ResponseContent<List<QuestionDTO>>(ResponseEnum.SUCCESS,questions);
+/*		for(QuestionDTO question : questions){
+			question.setContentImageUrl(this.getContentImageUrl(question.getContentImage()));
+			question.setOriginalImageUrl(originalImageUrl + question.getOriginalImage());
+			question.setWorngImageUrls(this.getWrongImageUrl(question.getWorngImages()));
+		}*/
+		
+		return new ResponseContent<List<QuestionDTO>>(ResponseEnum.SUCCESS,list);
 	}
 	
 	@Override

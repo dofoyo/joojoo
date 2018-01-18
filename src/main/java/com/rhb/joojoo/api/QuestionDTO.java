@@ -1,5 +1,6 @@
 package com.rhb.joojoo.api;
 
+import java.text.NumberFormat;
 
 public class QuestionDTO {
 	private String id;
@@ -11,15 +12,24 @@ public class QuestionDTO {
 	private Integer rightTimes = 0;					//正确次数
 	private Integer wrongTimes = 1;					//错误次数
 	private String knowledgeTag;	//知识点标签
-	private Float wrongRate;
 	private Integer difficulty = 0;
 	private String wrongTag;	//错误点
 	private String[] worngImages; //错题图片
 	private String[] worngImageUrls;  
+	private String school; 					//学校
+
 
 	
 	
 	
+	public String getSchool() {
+		return school;
+	}
+
+	public void setSchool(String school) {
+		this.school = school;
+	}
+
 	public String[] getWorngImageUrls() {
 		return worngImageUrls;
 	}
@@ -52,7 +62,38 @@ public class QuestionDTO {
 	         return false;  
 	     } 
 	}
+	
+	public boolean isMatchKeyword(String keywordFilter){
+		boolean flag = false;
+		if(keywordFilter==null || keywordFilter.isEmpty()){
+			flag = true;
+		}else if(this.getContent()!=null && this.getContent().indexOf(keywordFilter) != -1){
+			flag = true;
+		}
+		return flag;
+	}
 
+	public boolean isMatchWrongRate(String wrongRateFilter){
+		boolean flag = false;
+	
+		if(wrongRateFilter==null || wrongRateFilter.isEmpty()){
+			flag = true;
+		}else if(this.getWrongRate()!=null && this.getWrongRate().equals(wrongRateFilter)){
+			flag = true;
+		}
+		return flag;
+	}
+
+	public String getWrongRate(){
+		int times = this.rightTimes + this.getWrongTimes();
+		Float rate = new Float((float)this.getWrongTimes()/(float)times);
+		
+		NumberFormat numberFormat = NumberFormat.getInstance();  // 创建一个数值格式化对象  
+		numberFormat.setMaximumFractionDigits(0); // 设置精确到小数点后0位  
+		return numberFormat.format(rate * 100);
+		 
+	}
+	
 	public boolean isMatchWrongTag(String wrongTagFilter){
 		boolean flag = false;
 		if(wrongTagFilter==null || wrongTagFilter.isEmpty()){
@@ -90,14 +131,6 @@ public class QuestionDTO {
 
 	public void setDifficulty(Integer difficulty) {
 		this.difficulty = difficulty;
-	}
-
-	public Float getWrongRate() {
-		return wrongRate;
-	}
-
-	public void setWrongRate(Float wrongRate) {
-		this.wrongRate = wrongRate;
 	}
 
 	public String getKnowledgeTag() {

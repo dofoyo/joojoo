@@ -20,7 +20,7 @@ public class QuestionServiceTest {
 	
 	@Test
 	public void testGetQuestions(){
-		List<QuestionDTO> dtos = questionService.getQuestions("", "","");
+		List<QuestionDTO> dtos = questionService.getQuestions("","","","","","");
 		for(QuestionDTO dto : dtos){
 			if(dto.getWrongTimes() != dto.getWorngImages().length+1){
 				System.out.println(dto.getContent());

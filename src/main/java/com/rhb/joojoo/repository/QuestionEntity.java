@@ -8,7 +8,16 @@ public class QuestionEntity {
 	private String KnowledgeTag;				//知识点
 	private Integer difficulty = 0;
 	private String wrongTag;				//错误点
+	private String school; 					//学校
+
 	
+	
+	public String getSchool() {
+		return school;
+	}
+	public void setSchool(String school) {
+		this.school = school;
+	}
 	public String getWrongTag() {
 		return wrongTag;
 	}
