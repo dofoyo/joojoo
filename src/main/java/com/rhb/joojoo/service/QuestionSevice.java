@@ -24,5 +24,6 @@ public interface QuestionSevice {
 	public Map<String,Integer> getWrongTagStatics();
 	public Map<String,Integer> getWrongRateStatic();
 	public Map<String,Integer> getDifficulty(String wrongRateFilter);
+	public void init();
 	
 }

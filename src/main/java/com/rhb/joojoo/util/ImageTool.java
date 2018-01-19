@@ -72,8 +72,8 @@ public class ImageTool {
 				//ImageIO.write(convertToBufferedImage(itemp), "JPEG", new File(result)); //上一句可能会出错，这一句图片会变色
 			}
 		} catch (IOException e) {
-			System.out.println(srcImageFile);
-			e.printStackTrace();
+			System.out.println("************* change " + srcImageFile + " error!!! ************");
+			//e.printStackTrace();
 		}
 	}
 	

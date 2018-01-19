@@ -36,11 +36,6 @@ public class QuestionServiceImp implements QuestionSevice{
 			String wrongTagFilter, 
 			String difficultyFilter,
 			String wrongRateFilter) {
-		//System.out.println("orderBy:" + orderBy);
-		//System.out.println("filterStr:" + filterStr);
-		if(questions == null){
-			init();
-		}
 		
 		List<QuestionDTO> dtos = new ArrayList<QuestionDTO>();
 		QuestionDTO dto;
@@ -84,7 +79,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		return dtos;
 	}
 	
-	private void init(){
+	public void init(){
 		System.out.println(" QuestionServiceImp init ...........");
 		
 		questions = new HashMap<String,Question>();
@@ -139,11 +134,7 @@ public class QuestionServiceImp implements QuestionSevice{
 	
 
 	@Override
-	public QuestionDTO getQuestion(String id) {
-		if(questions == null){
-			init();
-		}
-		
+	public QuestionDTO getQuestion(String id) {	
 		Question question = questions.get(id);
 		QuestionDTO dto = this.getQuestionDTO(question);
 		return dto;
@@ -235,10 +226,6 @@ public class QuestionServiceImp implements QuestionSevice{
 	
 	@Override
 	public Map<String,Integer> getWrongRateStatic(){
-		if(questions == null){
-			init();
-		}	
-		
 		NumberFormat numberFormat = NumberFormat.getInstance();  // 创建一个数值格式化对象  
 		numberFormat.setMaximumFractionDigits(2); // 设置精确到小数点后2位  
 		
@@ -263,11 +250,7 @@ public class QuestionServiceImp implements QuestionSevice{
 	}
 
 	@Override
-	public Map<String, Integer> getWrongTagStatics() {
-		if(questions == null){
-			init();
-		}
-		
+	public Map<String, Integer> getWrongTagStatics() {	
 		Map<String, Integer> statics = new HashMap<String,Integer>();
 		String[] tags;
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
@@ -290,10 +273,6 @@ public class QuestionServiceImp implements QuestionSevice{
 	
 	@Override
 	public Map<String, Integer> getKnowledgeTagStatics() {
-		if(questions == null){
-			init();
-		}
-		
 		Map<String, Integer> statics = new HashMap<String,Integer>();
 		String[] tags;
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
@@ -316,10 +295,6 @@ public class QuestionServiceImp implements QuestionSevice{
 
 	@Override
 	public Map<String, Integer> getDifficulty(String wrongRateFilter) {
-		if(questions == null){
-			init();
-		}
-
 		NumberFormat numberFormat = NumberFormat.getInstance();  // 创建一个数值格式化对象  
 		numberFormat.setMaximumFractionDigits(2); // 设置精确到小数点后2位  
 
