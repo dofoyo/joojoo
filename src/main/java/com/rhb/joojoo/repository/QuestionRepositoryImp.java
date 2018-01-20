@@ -139,5 +139,11 @@ public class QuestionRepositoryImp implements QuestionRepository {
         return this.getImages(imagePath.substring(6));
 	}
 
+	@Override
+	public String[] getTodoImages() {
+		String imagePath = rootPath + "todo";
+        return this.getImages(imagePath.substring(6));
+	}
+
 	
 }

@@ -7,4 +7,5 @@ public interface QuestionRepository {
 	public String[] getContentImages();
 	public String[] getWrongImages();
 	public void update(QuestionEntity question);
+	public String[] getTodoImages();
 }

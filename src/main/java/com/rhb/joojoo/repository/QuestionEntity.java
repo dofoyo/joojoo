@@ -1,5 +1,7 @@
 package com.rhb.joojoo.repository;
 
+import java.util.List;
+
 public class QuestionEntity {
 	private String id;
 	private String content;					// 题目
@@ -9,9 +11,21 @@ public class QuestionEntity {
 	private Integer difficulty = 0;
 	private String wrongTag;				//错误点
 	private String school; 					//学校
-
+	private List<String> wrongImages;
+	private String contentImage;
 	
-	
+	public List<String> getWrongImages() {
+		return wrongImages;
+	}
+	public void setWrongImages(List<String> wrongImages) {
+		this.wrongImages = wrongImages;
+	}
+	public String getContentImage() {
+		return contentImage;
+	}
+	public void setContentImage(String contentImage) {
+		this.contentImage = contentImage;
+	}
 	public String getSchool() {
 		return school;
 	}

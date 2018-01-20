@@ -25,8 +25,24 @@ public class ProblemControllerImp implements ProblemController {
 	private static final String contentImageUrl = "http://localhost:8081/contentImage/";
 	private static final String originalImageUrl = "http://localhost:8081/originalImage/";
 	private static final String wrongImageUrl = "http://localhost:8081/wrongImage/";
+	private static final String todoImageUrl = "http://localhost:8081/todoImage/";
 
-
+	@GetMapping("/todoImages")
+	public ResponseContent<List<TodoImageDTO>> getTodoImages(){
+		//System.out.println("********* get todo images  ********");
+		List<TodoImageDTO> list = new ArrayList<TodoImageDTO>();
+		String[] images = questionService.getTodoImages();
+		//System.out.println("*********** There are " + images.length + " images**************");
+		TodoImageDTO dto;
+		for(String image : images){
+			dto = new TodoImageDTO();
+			dto.setImage(image);
+			dto.setImageUrl(this.getTodoImageUrl(image));
+			list.add(dto);
+		}
+		return new ResponseContent<List<TodoImageDTO>>(ResponseEnum.SUCCESS,list);
+	}
+	
 	@GetMapping("/difficulty")
 	public ResponseContent<List<DifficultyDTO>> getDifficulty(@RequestParam(value="wrongRateFilter", defaultValue="") String wrongRateFilter) {
 		//System.out.println(wrongRateFilter);
@@ -276,9 +292,19 @@ public class ProblemControllerImp implements ProblemController {
         	}else{
         		urls[i] = "";
         	}
-    		
     	}
     	return urls;
     }
+    
+    private String getTodoImageUrl(String image){
+    	String url;
+    	if(image!=null && !image.equals("null") && !image.isEmpty()){
+    		url = todoImageUrl + image;
+    	}else{
+    		url = "";
+    	}
+    	return url;
+    }
+
 
 }

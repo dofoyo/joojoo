@@ -349,5 +349,10 @@ public class QuestionServiceImp implements QuestionSevice{
 		}				
 	}
 
+	@Override
+	public String[] getTodoImages() {
+		return questionRepository.getTodoImages();
+	}
+
 
 }

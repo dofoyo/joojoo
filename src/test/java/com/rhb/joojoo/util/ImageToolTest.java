@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class ImageToolTest {
 
-	@Test
+	//@Test
 	public void test(){
 		String source = "D:\\mydocs\\ranluwei\\joojoo\\00001.jpg";
 		String result = "D:\\mydocs\\ranluwei\\joojoo\\00001.jpg";

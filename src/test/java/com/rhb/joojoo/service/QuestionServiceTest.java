@@ -18,7 +18,7 @@ public class QuestionServiceTest {
 	@Autowired
 	QuestionSevice questionService;
 	
-	@Test
+	//@Test
 	public void testGetQuestions(){
 		List<QuestionDTO> dtos = questionService.getQuestions("","","","","","");
 		for(QuestionDTO dto : dtos){
@@ -38,6 +38,14 @@ public class QuestionServiceTest {
 		Map<String,Integer> m = questionService.getWrongRateStatic();
 		for(Map.Entry<String,Integer> mapEntry : m.entrySet()){
 			System.out.println(mapEntry.getKey() + ": " + mapEntry.getValue());
+		}
+	}
+	
+	@Test
+	public void testGetTodoImages(){
+		String[] images = questionService.getTodoImages();
+		for(String image : images){
+			System.out.println(image);
 		}
 	}
 
