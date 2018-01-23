@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rhb.joojoo.util.FileUtil;
 import com.rhb.joojoo.util.ImageTool;
 
 @Repository("QuestionRepositoryImp")
@@ -23,12 +24,45 @@ public class QuestionRepositoryImp implements QuestionRepository {
 	@Value("${rootPath}")
 	private String rootPath;
 	
+	private final static String imagePath = "images/";
 
 	@Override
-	public void update(QuestionEntity question) {
+	public List<QuestionEntity> getQuestionEntities() {
+		List<QuestionEntity> questions = new ArrayList<QuestionEntity>();
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+		
+		String[] jsons = this.getJsons();
+		for(String json : jsons){
+			try {
+				QuestionEntity q = mapper.readValue(new File(rootPath.substring(6) + json), QuestionEntity.class);
+				questions.add(q);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return questions;
+	}
+
+	@Override
+	public void save(QuestionEntity question) {
+		System.out.println("save " + rootPath.substring(6) + question.getId()+".json");
 		this.writeToFile(rootPath.substring(6) + question.getId()+".json", question);
 	}
 	
+	@Override
+	public String[] getImages() {
+		String imagePath = rootPath + this.imagePath;
+		String[] files = this.getImages(imagePath.substring(6));
+		String pathAndFile;
+		for(String file : files){
+			pathAndFile = imagePath.substring(6) + file;
+			ImageTool.scale2(pathAndFile, pathAndFile, 768, 1024, false);
+		}
+        return files;
+	}
+
 	private void writeToFile(String jsonfile, Object object){
 		ObjectMapper mapper = new ObjectMapper();
     	try {
@@ -76,74 +110,5 @@ public class QuestionRepositoryImp implements QuestionRepository {
         
         return images;
 	}
-
-	private String[] getOriginalImages() {
-		String[] files = this.getImages(rootPath.substring(6));
-		String pathAndFile;
-		for(String file : files){
-			pathAndFile = rootPath.substring(6) + file;
-			ImageTool.scale2(pathAndFile, pathAndFile, 768, 1024, false);
-		}
-        return files;
-     }
-
-	
-	public String[] getContentImages() {
-		String contentImagePath = rootPath + "content";
-        return this.getImages(contentImagePath.substring(6));
-	}
-
-	@Override
-	public List<QuestionEntity> getQuestionEntities() {
-		Map<String,QuestionEntity> questions = new HashMap<String,QuestionEntity>();
-		
-		QuestionEntity question = null;
-		String id = null;
-		
-		String[] originalImages = this.getOriginalImages();
-		for(String originalImage : originalImages){
-			question = new QuestionEntity();
-			question.setId(originalImage);
-			questions.put(originalImage, question);
-		}
-
-		String[] jsons = this.getJsons();		
-		for(String json : jsons){
-			if(questions.containsKey(json.substring(0, json.indexOf(".json")))){
-				//System.out.println(json);
-				ObjectMapper mapper = new ObjectMapper();
-				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
-				try {
-					QuestionEntity q = mapper.readValue(new File(rootPath.substring(6) + json), QuestionEntity.class);
-					question = questions.get(json.substring(0, json.indexOf(".json")));
-					question.setContent(q.getContent());
-					question.setRightTimes(q.getRightTimes());
-					question.setWrongTimes(q.getWrongTimes());
-					question.setKnowledgeTag(q.getKnowledgeTag());
-					question.setDifficulty(q.getDifficulty());
-					question.setWrongTag((q.getWrongTag()));
-					//System.out.println("content: " + q.getContent());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		}
-		return new ArrayList<QuestionEntity>(questions.values());
-	}
-
-	@Override
-	public String[] getWrongImages() {
-		String imagePath = rootPath + "wrong";
-        return this.getImages(imagePath.substring(6));
-	}
-
-	@Override
-	public String[] getTodoImages() {
-		String imagePath = rootPath + "todo";
-        return this.getImages(imagePath.substring(6));
-	}
-
 	
 }

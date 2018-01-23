@@ -1,3 +1,4 @@
 rootPath: file:/D:/mydocs/ranluwei/joojoo/
 server.port: 8081
+httpPath: http://localhost
 

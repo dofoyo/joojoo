@@ -1,24 +1,28 @@
 package com.rhb.joojoo.repository;
 
-import java.util.List;
-
 public class QuestionEntity {
 	private String id;
 	private String content;					// 题目
 	private int rightTimes = 0;					//正确次数
-	private int wrongTimes = 1;					//错误次数
 	private String KnowledgeTag;				//知识点
 	private Integer difficulty = 0;
 	private String wrongTag;				//错误点
 	private String school; 					//学校
-	private List<String> wrongImages;
-	private String contentImage;
+	private String wrongImage;			//错题图片
+	private String contentImage;		//题目图片
+	private int deleted = 0; 
 	
-	public List<String> getWrongImages() {
-		return wrongImages;
+	public int getDeleted() {
+		return deleted;
 	}
-	public void setWrongImages(List<String> wrongImages) {
-		this.wrongImages = wrongImages;
+	public void setDeleted(int deleted) {
+		this.deleted = deleted;
+	}
+	public String getWrongImage() {
+		return wrongImage;
+	}
+	public void setWrongImage(String wrongImage) {
+		this.wrongImage = wrongImage;
 	}
 	public String getContentImage() {
 		return contentImage;
@@ -67,11 +71,5 @@ public class QuestionEntity {
 	}
 	public void setRightTimes(int rightTimes) {
 		this.rightTimes = rightTimes;
-	}
-	public int getWrongTimes() {
-		return wrongTimes;
-	}
-	public void setWrongTimes(int wrongTimes) {
-		this.wrongTimes = wrongTimes;
 	}
 }

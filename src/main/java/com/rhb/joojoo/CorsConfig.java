@@ -25,10 +25,7 @@ public class CorsConfig extends WebMvcConfigurerAdapter {
     
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {	
-        registry.addResourceHandler("/originalImage/**").addResourceLocations(rootPath);
-        registry.addResourceHandler("/contentImage/**").addResourceLocations(rootPath+"content/");
-        registry.addResourceHandler("/wrongImage/**").addResourceLocations(rootPath+"wrong/");
-        registry.addResourceHandler("/todoImage/**").addResourceLocations(rootPath+"todo/");
+        registry.addResourceHandler("/images/**").addResourceLocations(rootPath+"images/");
         super.addResourceHandlers(registry);
     }
 } 

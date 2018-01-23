@@ -6,7 +6,6 @@ import java.util.Set;
 
 public class Question {
 	private String id;
-	private String originalImage;  			// 原题图片
 	private String content;					// 题目
 	private String contentImage;  			// 题目图片
 	private Set<String> knowledgeTags;		// 知识点标签（追击、相遇...)
@@ -17,8 +16,29 @@ public class Question {
 	private int rightTimes = 0;				//正确次数
 	private String wrongTag; 				//错误原因标签
 	private String school; 					//学校
+	private Set<String> wrongImages = new HashSet<String>();
+	private int deleted = 0;
 	
 	
+	public boolean isDup(){
+		return wrongImages.contains(contentImage) ? true : false;
+	}
+	
+	public int getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(int deleted) {
+		this.deleted = deleted;
+	}
+
+	public boolean isContentImage(String image){
+		return image!=null && image.equals(this.contentImage) ? true : false;
+	}
+	
+	public boolean isWrongImage(String image){
+		return wrongImages.contains(image) ? true : false;
+	}
 	
 	public String getSchool() {
 		return school;
@@ -28,17 +48,34 @@ public class Question {
 		this.school = school;
 	}
 
-	private Set<String> wrongImages = new HashSet<String>();
-	
+
 	public void addWrongImage(String image){
 		this.wrongImages.add(image);
 	}
 	
+	public void removeWrongImage(String image){
+		this.wrongImages.remove(image);
+	}
+	
 	public void addWrongImages(String[] images){
 		for(String image : images){
-			this.addWrongImage(image);
+			if(!image.isEmpty()){
+				this.addWrongImage(image);
+			}
 		}
 	}
+
+	public String getWrongImagesString() {
+		StringBuffer sb = new StringBuffer();
+		for(String s : wrongImages){
+			if(sb.length()>1){
+				sb.append(",");
+			}
+			sb.append(s);
+		}
+		return sb.toString();
+	}
+
 	
 	public Set<String> getWrongImages() {
 		return wrongImages;
@@ -78,12 +115,6 @@ public class Question {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getOriginalImage() {
-		return originalImage;
-	}
-	public void setOriginalImage(String originalImage) {
-		this.originalImage = originalImage;
-	}
 	public String getContent() {
 		return content;
 	}
@@ -116,7 +147,7 @@ public class Question {
 	}
 	
 	public int getWrongTimes() {
-		return this.wrongImages.size()+1;
+		return this.wrongImages.size();
 	}
 
 	public void right(int i){

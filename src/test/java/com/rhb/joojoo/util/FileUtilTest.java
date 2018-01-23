@@ -1,6 +1,8 @@
 package com.rhb.joojoo.util;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -23,21 +25,27 @@ public class FileUtilTest {
 				}else{
 					newname = "joojooj_" + oldname;
 				}
-				FileUtil.renameFile(path, oldname, newname);
+				FileUtil.rename(path, oldname, newname);
 				//System.out.println(oldname + " --> "+ newname);
 			}
 		}
 	}
 	
 	@Test
-	public void testMove(){
-		String file = "D:\\mydocs\\ranluwei\\joojoo\\todo\\joojoo.pptx";
-		String destDir = "D:\\mydocs\\ranluwei\\joojoo\\content";
-		boolean flag = FileUtil.move(file, destDir);
-		if(flag){
-			System.out.println("移动成功！");
-		}else{
-			System.out.println("失败！！！");
+	public void testFor(){
+		List<Integer> list = new ArrayList<Integer>();
+		for(int i=0; i<100; i++){
+			list.add(i);
 		}
+		
+		for(Integer i : list){
+			System.out.println(i);
+			if(i==50){
+				break;
+			}
+		}
+		
+		
 	}
+	
 }

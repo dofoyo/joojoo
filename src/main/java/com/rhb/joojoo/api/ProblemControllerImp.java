@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,30 +19,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rhb.joojoo.service.QuestionSevice;
 
 @RestController
-public class ProblemControllerImp implements ProblemController {
+public class ProblemControllerImp{
 	@Autowired
 	QuestionSevice questionService;
 	
-	private static final String contentImageUrl = "http://localhost:8081/contentImage/";
-	private static final String originalImageUrl = "http://localhost:8081/originalImage/";
-	private static final String wrongImageUrl = "http://localhost:8081/wrongImage/";
-	private static final String todoImageUrl = "http://localhost:8081/todoImage/";
+	@Value("${httpPath}")
+	private String httpPath;
+	
+	@Value("${server.port}")
+	private String port;
 
-	@GetMapping("/todoImages")
-	public ResponseContent<List<TodoImageDTO>> getTodoImages(){
-		//System.out.println("********* get todo images  ********");
-		List<TodoImageDTO> list = new ArrayList<TodoImageDTO>();
-		String[] images = questionService.getTodoImages();
-		//System.out.println("*********** There are " + images.length + " images**************");
-		TodoImageDTO dto;
-		for(String image : images){
-			dto = new TodoImageDTO();
-			dto.setImage(image);
-			dto.setImageUrl(this.getTodoImageUrl(image));
-			list.add(dto);
-		}
-		return new ResponseContent<List<TodoImageDTO>>(ResponseEnum.SUCCESS,list);
-	}
 	
 	@GetMapping("/difficulty")
 	public ResponseContent<List<DifficultyDTO>> getDifficulty(@RequestParam(value="wrongRateFilter", defaultValue="") String wrongRateFilter) {
@@ -151,7 +138,6 @@ public class ProblemControllerImp implements ProblemController {
 		return new ResponseContent<List<KnowledgeTagStatisticsDTO>>(ResponseEnum.SUCCESS,list2);
 	}	
 	
-	@Override
 	@GetMapping("/questions")
 	public ResponseContent<List<QuestionDTO>> getQuestions(
 			@RequestParam(value="orderBy", defaultValue="") String orderBy,
@@ -164,46 +150,40 @@ public class ProblemControllerImp implements ProblemController {
 		
 		List<QuestionDTO> questions = questionService.getQuestions(orderBy,keywordFilter,knowledgeTagFilter,wrongTagFilter,difficultyFilter,wrongRateFilter);
 		
+		//System.out.println("keywordFilter: " + keywordFilter);
+		//System.out.println("count: " + count);
+		
 		List<QuestionDTO> list = new ArrayList<QuestionDTO>();
 		
 		String curl = null;
 		QuestionDTO question;
 		for(int i=0; i<count && i<questions.size(); i++){
 			question = questions.get(i);
-			question.setContentImageUrl(this.getContentImageUrl(question.getContentImage()));
-			question.setOriginalImageUrl(originalImageUrl + question.getOriginalImage());
-			question.setWorngImageUrls(this.getWrongImageUrl(question.getWorngImages()));
+			question.setContentImageUrl(this.getImageUrl(question.getContentImage()));
+			question.setWorngImageUrls(this.getImageUrl(question.getWorngImages()));
 			list.add(question);
 		}
-		
-/*		for(QuestionDTO question : questions){
-			question.setContentImageUrl(this.getContentImageUrl(question.getContentImage()));
-			question.setOriginalImageUrl(originalImageUrl + question.getOriginalImage());
-			question.setWorngImageUrls(this.getWrongImageUrl(question.getWorngImages()));
-		}*/
 		
 		return new ResponseContent<List<QuestionDTO>>(ResponseEnum.SUCCESS,list);
 	}
 	
-	@Override
 	@PutMapping("/questions")
 	public void refresh() {
 		//System.out.println("refresh....");
 		questionService.refresh();
 	}
 
-	@Override
 	@GetMapping("/question")
 	public ResponseContent<QuestionDTO> getQuestion(@RequestParam(value="id") String id) {
 		//System.out.println("id: " +  id);
 		
 		QuestionDTO question = questionService.getQuestion(id);
-		String orul = originalImageUrl + question.getOriginalImage();
-		question.setContentImageUrl(this.getContentImageUrl(question.getContentImage()));
-		question.setOriginalImageUrl(orul);
+		question.setContentImageUrl(this.getImageUrl(question.getContentImage()));
 
 		return new ResponseContent<QuestionDTO>(ResponseEnum.SUCCESS,question);
 	}
+	
+
 	
     @PutMapping("/question_content")
     public void updateContent(@RequestParam(value="id") String id, @RequestBody String body){
@@ -274,37 +254,26 @@ public class ProblemControllerImp implements ProblemController {
     	//System.out.println("update content " + id + ", " + body);
     }
     
-    private String getContentImageUrl(String contentImage){
+    private String getImageUrl(String image){
     	String url;
-    	if(contentImage!=null && !contentImage.equals("null") && !contentImage.isEmpty()){
-    		url = contentImageUrl + contentImage;
+    	if(image!=null && !image.equals("null") && !image.isEmpty()){
+    		url = this.httpPath + ":" + this.port + "/images/" + image;
     	}else{
     		url = "";
     	}
     	return url;
     }
     
-    private String[] getWrongImageUrl(String[] wrongImages){
-    	String[] urls = new String[wrongImages.length];
-    	for(int i=0; i<wrongImages.length; i++){
-        	if(wrongImages[i]!=null && !wrongImages[i].equals("null") && !wrongImages[i].isEmpty()){
-        		urls[i] = wrongImageUrl + wrongImages[i];
+    private String[] getImageUrl(String[] images){
+    	String[] urls = new String[images.length];
+    	for(int i=0; i<images.length; i++){
+        	if(images[i]!=null && !images[i].equals("null") && !images[i].isEmpty()){
+        		urls[i] = this.httpPath + ":" + this.port + "/images/" + images[i];
         	}else{
         		urls[i] = "";
         	}
     	}
     	return urls;
     }
-    
-    private String getTodoImageUrl(String image){
-    	String url;
-    	if(image!=null && !image.equals("null") && !image.isEmpty()){
-    		url = todoImageUrl + image;
-    	}else{
-    		url = "";
-    	}
-    	return url;
-    }
-
 
 }

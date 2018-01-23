@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.rhb.joojoo.api.QuestionDTO;
+import com.rhb.joojoo.api.ImageDTO;
 import com.rhb.joojoo.domain.Question;
 import com.rhb.joojoo.repository.QuestionEntity;
 import com.rhb.joojoo.repository.QuestionRepository;
+import com.rhb.joojoo.util.FileUtil;
 
 @Service("QuestionServiceImp")
 public class QuestionServiceImp implements QuestionSevice{
@@ -25,9 +27,8 @@ public class QuestionServiceImp implements QuestionSevice{
 	QuestionRepository questionRepository;
 	
 	private Map<String,Question> questions = null;
-	private String[] contentImages = null;
-	private String[] wrongImages = null;
-
+	private Map<String,ImageDTO> images = null;
+	
 	@Override
 	public List<QuestionDTO> getQuestions(
 			String orderBy,
@@ -41,14 +42,16 @@ public class QuestionServiceImp implements QuestionSevice{
 		QuestionDTO dto;
 		
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
-			 dto = this.getQuestionDTO(entry.getValue());
-			 if(dto.isMatchKnowledgedTag(knowledgeTagFilter) &&
-					 dto.isMatchDifficulty(difficultyFilter) && 
-					 dto.isMatchKeyword(keywordFilter) && 
-					 dto.isMatchWrongTag(wrongTagFilter) &&
-					 dto.isMatchWrongRate(wrongRateFilter)){
-				 dtos.add(dto);				 
-			 }
+			if(entry.getValue().getDeleted()==0){
+				 dto = this.getQuestionDTO(entry.getValue());
+				 if(dto.isMatchKnowledgedTag(knowledgeTagFilter) &&
+						 dto.isMatchDifficulty(difficultyFilter) && 
+						 dto.isMatchKeyword(keywordFilter) && 
+						 dto.isMatchWrongTag(wrongTagFilter) &&
+						 dto.isMatchWrongRate(wrongRateFilter)){
+					 dtos.add(dto);				 
+				 }				
+			}
 		}
 		
 		if("orderByContent".equals(orderBy)){
@@ -63,8 +66,8 @@ public class QuestionServiceImp implements QuestionSevice{
 		}else{
 			Collections.sort(dtos, new Comparator<QuestionDTO>(){
 				public int compare(QuestionDTO dto1, QuestionDTO dto2){
-					Integer rate2 = Integer.parseInt(dto2.getWrongRate());
-					Integer rate1 = Integer.parseInt(dto1.getWrongRate());
+					Integer rate2 = dto2.getWrongRate();
+					Integer rate1 = dto1.getWrongRate();
 					int flag = rate2.compareTo(rate1);
 					if(flag == 0){
 						flag = dto1.getDifficulty().compareTo(dto2.getDifficulty());
@@ -80,18 +83,20 @@ public class QuestionServiceImp implements QuestionSevice{
 	}
 	
 	public void init(){
-		System.out.println(" QuestionServiceImp init ...........");
-		
+		System.out.println(" QuestionServiceImp init begin...........");
+		this.initQuestions();
+		this.initImages();
+		System.out.println(" QuestionServiceImp init over...........");
+	}
+	
+	private void initQuestions(){
 		questions = new HashMap<String,Question>();
-		contentImages = questionRepository.getContentImages();
-		wrongImages = questionRepository.getWrongImages();
 		List<QuestionEntity> QuestionEntities = questionRepository.getQuestionEntities();
 		
 		Question question = null;
 		
 		for(QuestionEntity q : QuestionEntities){
 			question = new Question();
-			question.setOriginalImage(q.getId());
 			question.setId(q.getId());
 			question.setContent(q.getContent());
 			question.setRightTimes(q.getRightTimes());
@@ -99,45 +104,97 @@ public class QuestionServiceImp implements QuestionSevice{
 			question.setDifficulty(q.getDifficulty());
 			question.setWrongTag(q.getWrongTag());
 			question.setSchool(q.getSchool());
-			
-			question.setContentImage(this.getContentImage(q.getId()));
-			question.addWrongImages(this.getWrongImages(q.getId()));
+			question.setContentImage(q.getContentImage());
+			question.addWrongImages(q.getWrongImage().split(","));
+			question.setDeleted(q.getDeleted());
 			
 			questions.put(question.getId(), question);
-		}
-		
+		}	
 	}
 	
-	private String getContentImage(String id){
-		String image = "";
-		for(int i=0; i<this.contentImages.length; i++){
-			if(id.equals(this.contentImages[i])){
-				image = this.contentImages[i];
-				break;
+	private void initImages(){
+		ImageDTO dto;
+		this.images = new HashMap<String,ImageDTO>();
+		String[] ss =questionRepository.getImages(); 
+		for(String image : ss){
+			dto = new ImageDTO();
+			dto.setName(image);
+			for(Map.Entry<String, Question> entry : questions.entrySet()){
+				if(entry.getValue().isContentImage(image) || entry.getValue().isWrongImage(image)){
+					dto.setQuestionid(entry.getValue().getId());
+					dto.setContent(entry.getValue().getContent());
+					if(entry.getValue().isContentImage(image)){
+						dto.setType(0);
+					}else{
+						dto.setType(1);
+					}
+					break;
+				}
 			}
+			images.put(image, dto);
 		}
-		return image;
 	}
-
-	private String[] getWrongImages(String id){
-		Set<String> image = new HashSet<String>();
-		String str = id.substring(0, id.length()-4);
-		for(int i=0; i<this.wrongImages.length; i++){
-			if(this.wrongImages[i].indexOf(str) != -1){
-				//System.out.println("*********** " + this.wrongImages[i] +  " ******");
-				image.add(this.wrongImages[i]);
-			}
-		}
-		return image.toArray(new String[0]);
-	}
-
 	
-
 	@Override
 	public QuestionDTO getQuestion(String id) {	
 		Question question = questions.get(id);
 		QuestionDTO dto = this.getQuestionDTO(question);
 		return dto;
+	}
+
+	
+
+	@Override
+	public void setImageToQuestion(String questionid, String imagename, Integer type) {
+		Question q = this.questions.get(questionid);
+
+		ImageDTO image = this.images.get(imagename);
+		image.setType(0);
+		image.setQuestionid(q.getId());
+		image.setContent(q.getContent());
+		
+		if(type == 0){
+			q.setContentImage(imagename);
+		}else if(type == 1){
+			q.addWrongImage(imagename);
+		}
+		
+		this.persist(q);
+	}
+	
+	
+	@Override
+	public void createQuestion(String imagename){
+		ImageDTO image = this.images.get(imagename);
+		image.setType(1);
+		image.setQuestionid(imagename);
+		
+		Question question = new Question();
+		question.setId(imagename);
+		question.addWrongImage(imagename);
+		questions.put(imagename, question);
+		this.persist(question);
+	}
+	
+	@Override
+	public void cancel(String imagename){
+		ImageDTO image = this.images.get(imagename);
+		image.setType(-1);
+		image.setQuestionid("");
+		image.setContent("");
+		
+		for(Map.Entry<String, Question> entry : questions.entrySet()){
+			if(entry.getValue().isContentImage(imagename) ||
+					entry.getValue().isWrongImage(imagename)){
+				if(entry.getValue().isContentImage(imagename)){
+					entry.getValue().setContentImage("");
+				}else if(entry.getValue().isWrongImage(imagename)){
+					entry.getValue().removeWrongImage(imagename);
+				}
+				this.persist(entry.getValue());
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -200,18 +257,19 @@ public class QuestionServiceImp implements QuestionSevice{
 		qe.setId(question.getId());
 		qe.setContent(question.getContent());
 		qe.setRightTimes(question.getRightTimes());
-		qe.setWrongTimes(question.getWrongTimes());
 		qe.setKnowledgeTag(question.getKnowledgeTag());
 		qe.setDifficulty(question.getDifficulty());
 		qe.setWrongTag(question.getWrongTag());
 		qe.setSchool(question.getSchool());
-		questionRepository.update(qe);
+		qe.setContentImage(question.getContentImage());
+		qe.setWrongImage(question.getWrongImagesString());
+		qe.setDeleted(question.getDeleted());
+		questionRepository.save(qe);
 	}
 	
 	private QuestionDTO getQuestionDTO(Question question){
 		QuestionDTO dto = new QuestionDTO();
-		dto.setOriginalImage(question.getOriginalImage());
-		dto.setId(question.getOriginalImage());
+		dto.setId(question.getId());
 		dto.setContent(question.getContent());
 		dto.setContentImage(question.getContentImage());
 		dto.setRightTimes(question.getRightTimes());
@@ -227,7 +285,7 @@ public class QuestionServiceImp implements QuestionSevice{
 	@Override
 	public Map<String,Integer> getWrongRateStatic(){
 		NumberFormat numberFormat = NumberFormat.getInstance();  // 创建一个数值格式化对象  
-		numberFormat.setMaximumFractionDigits(2); // 设置精确到小数点后2位  
+		numberFormat.setMaximumFractionDigits(0); // 设置精确到小数点后2位  
 		
 		Map<String, Integer> statics = new HashMap<String,Integer>();
 		
@@ -329,15 +387,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		return statics;
 	}
 	
-	private Integer getInteger(String str){
-		try{
-			return Integer.parseInt(str);
-		}catch(Exception e){
-			return null;
-		}
-	}
 
-	
 	@Override
 	public void updateDifficulty(String id, int i) {
 		if(questions.containsKey(id)){
@@ -350,9 +400,23 @@ public class QuestionServiceImp implements QuestionSevice{
 	}
 
 	@Override
-	public String[] getTodoImages() {
-		return questionRepository.getTodoImages();
+	public List<ImageDTO> getImages(String imagenameFilter) {
+		List<ImageDTO> list = new ArrayList<ImageDTO>();
+		for(Map.Entry<String, ImageDTO> entry : images.entrySet()){
+			if(entry.getValue().isMatchName(imagenameFilter)){
+				list.add(entry.getValue());
+			}
+		}
+		
+		Collections.sort(list, new Comparator<ImageDTO>(){
+			public int compare(ImageDTO dto1, ImageDTO dto2){			
+				return dto1.getType().compareTo(dto2.getType());
+			}
+		});
+		return list;
 	}
+
+	
 
 
 }

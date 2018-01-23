@@ -1,5 +1,6 @@
 package com.rhb.joojoo.service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.rhb.joojoo.api.QuestionDTO;
+import com.rhb.joojoo.api.ImageDTO;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -18,17 +20,20 @@ public class QuestionServiceTest {
 	@Autowired
 	QuestionSevice questionService;
 	
-	//@Test
+	@Test
 	public void testGetQuestions(){
+		String path = "D:\\mydocs\\ranluwei\\joojoo\\images\\";
+		File file;
 		List<QuestionDTO> dtos = questionService.getQuestions("","","","","","");
 		for(QuestionDTO dto : dtos){
-			if(dto.getWrongTimes() != dto.getWorngImages().length+1){
-				System.out.println(dto.getContent());
-				System.out.println(dto.getOriginalImage());
-				System.out.println(dto.getWrongTimes());
-				System.out.println(dto.getWorngImages().length+1);
-				
+			for(String wrongImage : dto.getWorngImages()){
+				file = new File(path + wrongImage);
+				if(!file.exists()){
+					System.out.println(dto.getContentImage());
+					
+				}				
 			}
+
 			
 		}
 	}
@@ -41,12 +46,13 @@ public class QuestionServiceTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void testGetTodoImages(){
-		String[] images = questionService.getTodoImages();
-		for(String image : images){
-			System.out.println(image);
+		List<ImageDTO> dtos = questionService.getImages("");
+		for(ImageDTO dto : dtos){
+			System.out.println(dto.toString());
 		}
 	}
+	
 
 }

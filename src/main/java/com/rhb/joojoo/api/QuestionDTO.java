@@ -1,13 +1,10 @@
 package com.rhb.joojoo.api;
 
-import java.text.NumberFormat;
-
 public class QuestionDTO {
+	
 	private String id;
-	private String originalImage;  			// 原题图片
 	private String content;					// 题目
 	private String contentImage;  			// 题目图片
-	private String originalImageUrl;
 	private String contentImageUrl;
 	private Integer rightTimes = 0;					//正确次数
 	private Integer wrongTimes = 1;					//错误次数
@@ -17,10 +14,6 @@ public class QuestionDTO {
 	private String[] worngImages; //错题图片
 	private String[] worngImageUrls;  
 	private String school; 					//学校
-
-
-	
-	
 	
 	public String getSchool() {
 		return school;
@@ -64,11 +57,14 @@ public class QuestionDTO {
 	}
 	
 	public boolean isMatchKeyword(String keywordFilter){
+		//System.out.println("keyworkFilter is " + keywordFilter);
 		boolean flag = false;
 		if(keywordFilter==null || keywordFilter.isEmpty()){
+			//System.out.println("keyworkFilter is empty!");
 			flag = true;
-		}else if(this.getContent()!=null && this.getContent().indexOf(keywordFilter) != -1){
+		}else if(this.getContent()!=null && this.getContent().contains(keywordFilter)){
 			flag = true;
+			//System.out.println("keyworkFilter is match the content:'" + this.getContent() + "'");
 		}
 		return flag;
 	}
@@ -78,19 +74,19 @@ public class QuestionDTO {
 	
 		if(wrongRateFilter==null || wrongRateFilter.isEmpty()){
 			flag = true;
-		}else if(this.getWrongRate()!=null && this.getWrongRate().equals(wrongRateFilter)){
+		}else if(this.getWrongRate()!=null && this.getWrongRate().equals(Integer.parseInt(wrongRateFilter))){
 			flag = true;
 		}
 		return flag;
 	}
 
-	public String getWrongRate(){
+	public Integer getWrongRate(){
 		int times = this.rightTimes + this.getWrongTimes();
-		Float rate = new Float((float)this.getWrongTimes()/(float)times);
-		
-		NumberFormat numberFormat = NumberFormat.getInstance();  // 创建一个数值格式化对象  
+		Float rate = new Float((float)this.getWrongTimes()/(float)times) * 100;
+		return rate.intValue();
+/*		NumberFormat numberFormat = NumberFormat.getInstance();  // 创建一个数值格式化对象  
 		numberFormat.setMaximumFractionDigits(0); // 设置精确到小数点后0位  
-		return numberFormat.format(rate * 100);
+		return numberFormat.format(rate);*/
 		 
 	}
 	
@@ -147,12 +143,6 @@ public class QuestionDTO {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getOriginalImage() {
-		return originalImage;
-	}
-	public void setOriginalImage(String originalImage) {
-		this.originalImage = originalImage;
-	}
 	public String getContent() {
 		return content;
 	}
@@ -164,12 +154,6 @@ public class QuestionDTO {
 	}
 	public void setContentImage(String contentImage) {
 		this.contentImage = contentImage;
-	}
-	public String getOriginalImageUrl() {
-		return originalImageUrl;
-	}
-	public void setOriginalImageUrl(String originalImageUrl) {
-		this.originalImageUrl = originalImageUrl;
 	}
 	public String getContentImageUrl() {
 		return contentImageUrl;
@@ -189,6 +173,7 @@ public class QuestionDTO {
 	public void setWrongTimes(Integer wrongTimes) {
 		this.wrongTimes = wrongTimes;
 	}
+
 
 
 }

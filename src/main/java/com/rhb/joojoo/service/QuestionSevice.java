@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.rhb.joojoo.api.QuestionDTO;
+import com.rhb.joojoo.api.ImageDTO;
 
 public interface QuestionSevice {
 	public List<QuestionDTO> getQuestions(
@@ -25,6 +26,10 @@ public interface QuestionSevice {
 	public Map<String,Integer> getWrongRateStatic();
 	public Map<String,Integer> getDifficulty(String wrongRateFilter);
 	public void init();
-	public String[] getTodoImages();
+	public List<ImageDTO> getImages(String imagenameFilter);
+	
+	public void createQuestion(String image);
+	public void setImageToQuestion(String questionid, String imagename, Integer type);
+	public void cancel(String image);
 	
 }
