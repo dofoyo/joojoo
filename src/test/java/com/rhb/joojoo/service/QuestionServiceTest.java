@@ -20,7 +20,7 @@ public class QuestionServiceTest {
 	@Autowired
 	QuestionSevice questionService;
 	
-	@Test
+	//@Test
 	public void testGetQuestions(){
 		String path = "D:\\mydocs\\ranluwei\\joojoo\\images\\";
 		File file;
@@ -48,7 +48,7 @@ public class QuestionServiceTest {
 	
 	//@Test
 	public void testGetTodoImages(){
-		List<ImageDTO> dtos = questionService.getImages("");
+		List<ImageDTO> dtos = questionService.getImages("","");
 		for(ImageDTO dto : dtos){
 			System.out.println(dto.toString());
 		}

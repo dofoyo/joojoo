@@ -47,7 +47,7 @@ public class QuestionRepositoryImp implements QuestionRepository {
 
 	@Override
 	public void save(QuestionEntity question) {
-		System.out.println("save " + rootPath.substring(6) + question.getId()+".json");
+		//System.out.println("save " + rootPath.substring(6) + question.getId()+".json");
 		this.writeToFile(rootPath.substring(6) + question.getId()+".json", question);
 	}
 	

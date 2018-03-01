@@ -1,5 +1,7 @@
 package com.rhb.joojoo.api;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,10 +9,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.rhb.joojoo.service.QuestionSevice;
 
@@ -18,6 +22,11 @@ import com.rhb.joojoo.service.QuestionSevice;
 public class ImageController{
 	@Autowired
 	QuestionSevice questionService;
+
+	@Value("${rootPath}")
+	private String rootPath;
+	
+	private final static String imagePath = "images/";
 	
 	@Value("${httpPath}")
 	private String httpPath;
@@ -25,10 +34,27 @@ public class ImageController{
 	@Value("${server.port}")
 	private String port;
 
+    @PostMapping("/image")
+    public ResponseContent<String> handleFileUpload(@RequestParam("image") MultipartFile file,@RequestParam("questionid") String questionid) {
+		
+    	String imageNameAndPath = rootPath.substring(6) + this.imagePath + file.getOriginalFilename();
+    	
+    	File dest = new File(imageNameAndPath);
+    	
+    	ResponseContent<String> rs = null;
+    	try {
+			file.transferTo(dest);
+			questionService.addImage(file.getOriginalFilename());
+			questionService.setImageToQuestion(questionid, file.getOriginalFilename(), 0);
+			rs = new ResponseContent<String>(ResponseEnum.SUCCESS,this.getImageUrl(file.getOriginalFilename()));
+		} catch (IllegalStateException | IOException e) {
+			rs = new ResponseContent<String>(ResponseEnum.ERROR,"");
+			e.printStackTrace();
+		} 
+    	
+        return rs;
+    }
 	
-	//private static final String contentImageUrl = "http://localhost:8081/contentImage/";
-	//private static final String wrongImageUrl = "http://localhost:8081/wrongImage/";
-	//private static final String todoImageUrl = "http://localhost:8081/todoImage/";
 
 	@PutMapping("/newQuestion")
     public void newQuestion(@RequestBody Map<String,String> params){
@@ -55,9 +81,11 @@ public class ImageController{
 	@GetMapping("/images")
 	public ResponseContent<List<ImageDTO>> getImages(
 			@RequestParam(value="count", defaultValue="20") String count,
+			@RequestParam(value="typeFilter", defaultValue="") String typeFilter,
 			@RequestParam(value="imagenameFilter",defaultValue="") String imagenameFilter){
+		//System.out.println("typeFilter: " + typeFilter);
 		//System.out.println("********* get todo images  ********");
-		List<ImageDTO> todos = questionService.getImages(imagenameFilter);
+		List<ImageDTO> todos = questionService.getImages(imagenameFilter,typeFilter);
 		//System.out.println("*********** There are " + images.length + " images**************");
 		
 		List<ImageDTO> list = new ArrayList<ImageDTO>();

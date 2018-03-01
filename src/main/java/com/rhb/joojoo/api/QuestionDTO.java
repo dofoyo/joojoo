@@ -1,5 +1,9 @@
 package com.rhb.joojoo.api;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 public class QuestionDTO {
 	
 	private String id;
@@ -69,17 +73,6 @@ public class QuestionDTO {
 		return flag;
 	}
 
-	public boolean isMatchWrongRate(String wrongRateFilter){
-		boolean flag = false;
-	
-		if(wrongRateFilter==null || wrongRateFilter.isEmpty()){
-			flag = true;
-		}else if(this.getWrongRate()!=null && this.getWrongRate().equals(Integer.parseInt(wrongRateFilter))){
-			flag = true;
-		}
-		return flag;
-	}
-
 	public Integer getWrongRate(){
 		int times = this.rightTimes + this.getWrongTimes();
 		Float rate = new Float((float)this.getWrongTimes()/(float)times) * 100;
@@ -112,14 +105,68 @@ public class QuestionDTO {
 	
 	public boolean isMatchDifficulty(String difficultyFilter){
 		boolean flag = false;
-		if(difficultyFilter==null || difficultyFilter.isEmpty()  || !isInteger(difficultyFilter)){
+
+		if(difficultyFilter==null || difficultyFilter.isEmpty()){
 			flag = true;
-		}else if(this.getDifficulty().equals(Integer.parseInt(difficultyFilter))){
-			//System.out.println("match difficulty is true!");
+		}else{
+			String operator = "";
+			if(difficultyFilter.indexOf("<") == -1 && difficultyFilter.indexOf("=") == -1 && difficultyFilter.indexOf(">") == -1){
+				operator = "==";
+			}
+			
+			String str = Integer.toString(difficulty) + operator + difficultyFilter;
+			//System.out.println(str);
+			ScriptEngineManager manager = new ScriptEngineManager();
+			ScriptEngine engine = manager.getEngineByName("js");
+			try {
+				flag = (Boolean)engine.eval(str);
+				//System.out.println(flag);
+			} catch (ScriptException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}			
+		}
+		
+		return flag;
+	}
+	
+	public boolean isMatchWrongRate(String wrongRateFilter){
+		boolean flag = false;
+
+		if(wrongRateFilter==null || wrongRateFilter.isEmpty()){
+			flag = true;
+		}else{
+			String operator = "";
+			if(wrongRateFilter.indexOf("<") == -1 && wrongRateFilter.indexOf("=") == -1 && wrongRateFilter.indexOf(">") == -1){
+				operator = "==";
+			}
+			
+			String str = Integer.toString(this.getWrongRate()) + operator + wrongRateFilter;
+			//System.out.println(str);
+			ScriptEngineManager manager = new ScriptEngineManager();
+			ScriptEngine engine = manager.getEngineByName("js");
+			try {
+				flag = (Boolean)engine.eval(str);
+				//System.out.println(flag);
+			} catch (ScriptException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}			
+		}
+		
+		return flag;
+	}
+	
+/*	public boolean isMatchWrongRate(String wrongRateFilter){
+		boolean flag = false;
+	
+		if(wrongRateFilter==null || wrongRateFilter.isEmpty()){
+			flag = true;
+		}else if(this.getWrongRate()!=null && this.getWrongRate().equals(Integer.parseInt(wrongRateFilter))){
 			flag = true;
 		}
 		return flag;
-	}
+	}*/
 	
 	public Integer getDifficulty() {
 		return difficulty;

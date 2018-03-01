@@ -26,7 +26,9 @@ public interface QuestionSevice {
 	public Map<String,Integer> getWrongRateStatic();
 	public Map<String,Integer> getDifficulty(String wrongRateFilter);
 	public void init();
-	public List<ImageDTO> getImages(String imagenameFilter);
+	
+	public void addImage(String imagename);
+	public List<ImageDTO> getImages(String imagenameFilter,String typeFilter);
 	
 	public void createQuestion(String image);
 	public void setImageToQuestion(String questionid, String imagename, Integer type);

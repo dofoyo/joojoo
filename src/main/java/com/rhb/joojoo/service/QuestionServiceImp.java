@@ -30,6 +30,11 @@ public class QuestionServiceImp implements QuestionSevice{
 	private Map<String,ImageDTO> images = null;
 	
 	@Override
+	public void addImage(String imagename){
+		images.put(imagename, new ImageDTO(imagename));
+	}
+	
+	@Override
 	public List<QuestionDTO> getQuestions(
 			String orderBy,
 			String keywordFilter,
@@ -86,7 +91,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		System.out.println(" QuestionServiceImp init begin...........");
 		this.initQuestions();
 		this.initImages();
-		System.out.println(" QuestionServiceImp init over...........");
+		System.out.println(" QuestionServiceImp init end...........");
 	}
 	
 	private void initQuestions(){
@@ -142,7 +147,6 @@ public class QuestionServiceImp implements QuestionSevice{
 		return dto;
 	}
 
-	
 
 	@Override
 	public void setImageToQuestion(String questionid, String imagename, Integer type) {
@@ -400,10 +404,10 @@ public class QuestionServiceImp implements QuestionSevice{
 	}
 
 	@Override
-	public List<ImageDTO> getImages(String imagenameFilter) {
+	public List<ImageDTO> getImages(String imagenameFilter,String typeFilter) {
 		List<ImageDTO> list = new ArrayList<ImageDTO>();
 		for(Map.Entry<String, ImageDTO> entry : images.entrySet()){
-			if(entry.getValue().isMatchName(imagenameFilter)){
+			if(entry.getValue().isMatchName(imagenameFilter) && entry.getValue().isMatchType(typeFilter)){
 				list.add(entry.getValue());
 			}
 		}

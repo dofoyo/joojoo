@@ -7,12 +7,32 @@ public class ImageDTO {
 	private String content;
 	private String questionid;
 	
+	public ImageDTO(){
+		super();
+	}
+	
+	public ImageDTO(String name){
+		super();
+		this.name = name;
+	}
 	
 	public boolean isMatchName(String nameFilter){
 		boolean flag = false;
 		if(nameFilter==null || nameFilter.isEmpty()){
 			flag = true;
 		}else if(this.getName()!=null && this.getName().indexOf(nameFilter) != -1){
+			flag = true;
+		}
+		return flag;
+	}
+	
+	public boolean isMatchType(String typeFilter){
+		boolean flag = false;
+		if(typeFilter==null || typeFilter.isEmpty()){
+			flag = true;
+		}else if(this.type == Integer.parseInt(typeFilter)){
+			//System.out.println(this.type);
+			//System.out.println(typeFilter);
 			flag = true;
 		}
 		return flag;
