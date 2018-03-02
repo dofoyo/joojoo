@@ -6,4 +6,5 @@ public interface QuestionRepository {
 	public List<QuestionEntity> getQuestionEntities();
 	public void save(QuestionEntity question);
 	public String[] getImages();
+	public void deleteImage(String imagename);
 }

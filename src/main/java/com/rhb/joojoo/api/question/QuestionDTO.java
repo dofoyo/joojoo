@@ -1,8 +1,12 @@
-package com.rhb.joojoo.api;
+package com.rhb.joojoo.api.question;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
 
 public class QuestionDTO {
 	
@@ -11,13 +15,31 @@ public class QuestionDTO {
 	private String contentImage;  			// 题目图片
 	private String contentImageUrl;
 	private Integer rightTimes = 0;					//正确次数
-	private Integer wrongTimes = 1;					//错误次数
 	private String knowledgeTag;	//知识点标签
 	private Integer difficulty = 0;
-	private String wrongTag;	//错误点
-	private String[] worngImages; //错题图片
-	private String[] worngImageUrls;  
+	
+	private Set<WrongDTO> wrongs = new HashSet<WrongDTO>();
+	
+	//private String wrongTag;	//错误点
+	//private String[] worngImages; //错题图片
+	//private String[] worngImageUrls;  
+
 	private String school; 					//学校
+	
+	public Set<WrongDTO> getWrongs() {
+		return wrongs;
+	}
+
+	public void setWrongs(Set<WrongDTO> wrongs) {
+		this.wrongs = wrongs;
+	}
+
+	public void addWrong(String image, String tag){
+		WrongDTO w = new WrongDTO();
+		w.setImage(image);
+		w.setTag(tag);
+		this.wrongs.add(w);
+	}
 	
 	public String getSchool() {
 		return school;
@@ -26,8 +48,14 @@ public class QuestionDTO {
 	public void setSchool(String school) {
 		this.school = school;
 	}
+	
+	public void setWrongImageUrl(String urlPrefix){
+		for(WrongDTO w : this.wrongs){
+			w.setImageUrl(urlPrefix + w.getImage()); 
+		}
+	}
 
-	public String[] getWorngImageUrls() {
+/*	public String[] getWorngImageUrls() {
 		return worngImageUrls;
 	}
 
@@ -42,14 +70,21 @@ public class QuestionDTO {
 	public void setWorngImages(String[] worngImages) {
 		this.worngImages = worngImages;
 	}
-
-	public String getWrongTag() {
-		return wrongTag;
-	}
-
 	public void setWrongTag(String wrongTag) {
 		this.wrongTag = wrongTag;
+	}	
+	*/
+
+	public String getWrongTag() {
+		StringBuffer sb  = new StringBuffer();
+		for(WrongDTO w : this.wrongs){
+			sb.append(w.getTag());
+			sb.append(" ");
+		}		
+		return sb.toString();
 	}
+
+
 
 	private boolean isInteger(String str){
 		try {  
@@ -87,8 +122,13 @@ public class QuestionDTO {
 		boolean flag = false;
 		if(wrongTagFilter==null || wrongTagFilter.isEmpty()){
 			flag = true;
-		}else if(this.getWrongTag()!=null && this.getWrongTag().indexOf(wrongTagFilter) != -1){
-			flag = true;
+		}else{
+			for(WrongDTO w : wrongs){
+				if(w.getTag().indexOf(wrongTagFilter) != -1){
+					flag = true;
+					break;
+				}
+			}
 		}
 		return flag;
 	}
@@ -215,11 +255,9 @@ public class QuestionDTO {
 		this.rightTimes = rightTimes;
 	}
 	public Integer getWrongTimes() {
-		return wrongTimes;
+		return this.wrongs.size();
 	}
-	public void setWrongTimes(Integer wrongTimes) {
-		this.wrongTimes = wrongTimes;
-	}
+
 
 
 

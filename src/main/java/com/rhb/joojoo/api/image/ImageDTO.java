@@ -1,4 +1,4 @@
-package com.rhb.joojoo.api;
+package com.rhb.joojoo.api.image;
 
 public class ImageDTO {
 	private String name;

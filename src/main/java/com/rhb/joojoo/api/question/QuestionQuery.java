@@ -1,6 +1,4 @@
-package com.rhb.joojoo.api;
-
-import java.text.NumberFormat;
+package com.rhb.joojoo.api.question;
 
 public class QuestionQuery {
 	private String orderBy = "";

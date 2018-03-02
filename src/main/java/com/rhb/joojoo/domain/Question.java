@@ -1,7 +1,9 @@
 package com.rhb.joojoo.domain;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Question {
@@ -14,14 +16,44 @@ public class Question {
 	private Integer difficulty = 0;  		//难度,0-最简单，1-较简单，2-简单，3-难，4较难，5-最难
 	
 	private int rightTimes = 0;				//正确次数
-	private String wrongTag; 				//错误原因标签
 	private String school; 					//学校
-	private Set<String> wrongImages = new HashSet<String>();
+	private Map<String,Wrong> wrongs = new HashMap<String,Wrong>();
 	private int deleted = 0;
 	
 	
-	public boolean isDup(){
-		return wrongImages.contains(contentImage) ? true : false;
+	public Map<String, Wrong> getWrongs() {
+		return wrongs;
+	}
+
+	public String getWrongTag(String image){
+		Wrong w = wrongs.get(image);
+		return w.getWrongTag();
+	}
+	
+	public void setWrongTag(String image,String tag){
+		Wrong w = wrongs.get(image);
+		w.setWrongTag(tag);
+	}
+	
+	public String[] getWrongImages(){
+		return wrongs.keySet().toArray(new String[0]);
+	}
+	
+	public String getWrongTagString(){
+		StringBuffer sb  = new StringBuffer();
+		for(Map.Entry<String, Wrong> entry : this.wrongs.entrySet()){
+			Wrong w = entry.getValue();
+			sb.append(w.getWrongTag());
+			sb.append(" ");
+		}		
+		return sb.toString();
+	}
+
+	public void addWrong(String image,String tag){
+		Wrong w = new Wrong();
+		w.setWrongImage(image);
+		w.setWrongTag(tag);
+		this.wrongs.put(image, w);
 	}
 	
 	public int getDeleted() {
@@ -37,7 +69,7 @@ public class Question {
 	}
 	
 	public boolean isWrongImage(String image){
-		return wrongImages.contains(image) ? true : false;
+		return wrongs.containsKey(image) ? true : false;
 	}
 	
 	public String getSchool() {
@@ -50,44 +82,15 @@ public class Question {
 
 
 	public void addWrongImage(String image){
-		this.wrongImages.add(image);
+		Wrong w = new Wrong();
+		w.setWrongImage(image);
+		this.wrongs.put(image, w);
 	}
 	
 	public void removeWrongImage(String image){
-		this.wrongImages.remove(image);
+		this.wrongs.remove(image);
 	}
 	
-	public void addWrongImages(String[] images){
-		for(String image : images){
-			if(!image.isEmpty()){
-				this.addWrongImage(image);
-			}
-		}
-	}
-
-	public String getWrongImagesString() {
-		StringBuffer sb = new StringBuffer();
-		for(String s : wrongImages){
-			if(sb.length()>1){
-				sb.append(",");
-			}
-			sb.append(s);
-		}
-		return sb.toString();
-	}
-
-	
-	public Set<String> getWrongImages() {
-		return wrongImages;
-	}
-
-	public String getWrongTag() {
-		return wrongTag;
-	}
-
-	public void setWrongTag(String wrongTag) {
-		this.wrongTag = wrongTag;
-	}
 
 	public Integer getDifficulty() {
 		return difficulty;
@@ -147,11 +150,13 @@ public class Question {
 	}
 	
 	public int getWrongTimes() {
-		return this.wrongImages.size();
+		return this.wrongs.size();
 	}
 
 	public void right(int i){
 		this.rightTimes = this.rightTimes + i;
 	}
+	
+	
 
 }

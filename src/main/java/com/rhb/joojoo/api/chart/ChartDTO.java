@@ -1,10 +1,10 @@
-package com.rhb.joojoo.api;
+package com.rhb.joojoo.api.chart;
 
-public class KnowledgeTagStatisticsDTO {
+public class ChartDTO {
 	private String name;
 	private Integer value;
 	
-	public KnowledgeTagStatisticsDTO(String name, Integer value){
+	public ChartDTO(String name, Integer value){
 		this.name = name;
 		this.value = value;
 	}

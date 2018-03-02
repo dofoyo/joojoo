@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -15,7 +13,6 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rhb.joojoo.util.FileUtil;
 import com.rhb.joojoo.util.ImageTool;
 
 @Repository("QuestionRepositoryImp")
@@ -49,6 +46,22 @@ public class QuestionRepositoryImp implements QuestionRepository {
 	public void save(QuestionEntity question) {
 		//System.out.println("save " + rootPath.substring(6) + question.getId()+".json");
 		this.writeToFile(rootPath.substring(6) + question.getId()+".json", question);
+	}
+	
+	@Override
+	public void deleteImage(String imagename){
+		String imagePath = rootPath.substring(6) + this.imagePath + imagename;
+		
+		//System.out.println("delete file: " + imagePath);
+
+		
+		File file = new File(imagePath);
+		if(file.exists()){
+			file.delete();
+		}else{
+			//System.out.println("file do NOT exist!");
+		}
+		
 	}
 	
 	@Override

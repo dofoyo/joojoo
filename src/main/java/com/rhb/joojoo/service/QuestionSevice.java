@@ -3,8 +3,8 @@ package com.rhb.joojoo.service;
 import java.util.List;
 import java.util.Map;
 
-import com.rhb.joojoo.api.QuestionDTO;
-import com.rhb.joojoo.api.ImageDTO;
+import com.rhb.joojoo.api.image.ImageDTO;
+import com.rhb.joojoo.api.question.QuestionDTO;
 
 public interface QuestionSevice {
 	public List<QuestionDTO> getQuestions(
@@ -18,7 +18,7 @@ public interface QuestionSevice {
 	public QuestionDTO getQuestion(String id);
 	public void updateContent(String id, String content);
 	public void updateKnowledgeTag(String id, String knowledgeTag);
-	public void updateWrongTag(String id, String wrongTag);
+	public void updateWrongTag(String id, String wrongImage, String wrongTag);
 	public void right(String id, int i);
 	public void updateDifficulty(String id, int i);
 	public Map<String,Integer> getKnowledgeTagStatics();
@@ -28,10 +28,13 @@ public interface QuestionSevice {
 	public void init();
 	
 	public void addImage(String imagename);
+	public void deleteImage(String imagename);
 	public List<ImageDTO> getImages(String imagenameFilter,String typeFilter);
 	
 	public void createQuestion(String image);
 	public void setImageToQuestion(String questionid, String imagename, Integer type);
 	public void cancel(String image);
+	
+	public void save(String id);
 	
 }

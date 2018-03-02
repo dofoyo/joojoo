@@ -1,4 +1,4 @@
-package com.rhb.joojoo.api;
+package com.rhb.joojoo.api.image;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.rhb.joojoo.api.ResponseContent;
+import com.rhb.joojoo.api.ResponseEnum;
 import com.rhb.joojoo.service.QuestionSevice;
 
 @RestController
@@ -76,6 +78,12 @@ public class ImageController{
     public void cancel(@RequestBody Map<String,String> params){
 		//System.out.println("cancel, image is " + params.get("imagename"));
 		questionService.cancel(params.get("imagename"));
+	}
+
+	@PutMapping("/delete")
+    public void delete(@RequestBody Map<String,String> params){
+		//System.out.println("delete, image is " + params.get("imagename"));
+		questionService.deleteImage(params.get("imagename"));
 	}
 	
 	@GetMapping("/images")

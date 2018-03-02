@@ -5,20 +5,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.rhb.joojoo.api.QuestionDTO;
-import com.rhb.joojoo.api.ImageDTO;
+import com.rhb.joojoo.api.image.ImageDTO;
+import com.rhb.joojoo.api.question.QuestionDTO;
+import com.rhb.joojoo.api.question.WrongDTO;
 import com.rhb.joojoo.domain.Question;
+import com.rhb.joojoo.domain.Wrong;
 import com.rhb.joojoo.repository.QuestionEntity;
 import com.rhb.joojoo.repository.QuestionRepository;
-import com.rhb.joojoo.util.FileUtil;
+import com.rhb.joojoo.repository.WrongEntity;
 
 @Service("QuestionServiceImp")
 public class QuestionServiceImp implements QuestionSevice{
@@ -107,12 +107,15 @@ public class QuestionServiceImp implements QuestionSevice{
 			question.setRightTimes(q.getRightTimes());
 			question.setKnowledgeTag(q.getKnowledgeTag());
 			question.setDifficulty(q.getDifficulty());
-			question.setWrongTag(q.getWrongTag());
 			question.setSchool(q.getSchool());
 			question.setContentImage(q.getContentImage());
-			question.addWrongImages(q.getWrongImage().split(","));
 			question.setDeleted(q.getDeleted());
+
+			for(WrongEntity we : q.getWrongs()){
+				question.addWrong(we.getWrongImage(), we.getWrongTag());
+			}
 			
+			//System.out.println(question.getWrongString());
 			questions.put(question.getId(), question);
 		}	
 	}
@@ -179,6 +182,13 @@ public class QuestionServiceImp implements QuestionSevice{
 		questions.put(imagename, question);
 		this.persist(question);
 	}
+
+	@Override
+	public void deleteImage(String imagename){
+		this.images.remove(imagename);
+		questionRepository.deleteImage(imagename);
+		
+	}
 	
 	@Override
 	public void cancel(String imagename){
@@ -201,6 +211,16 @@ public class QuestionServiceImp implements QuestionSevice{
 		}
 	}
 
+	@Override
+	public void save(String id) {
+		//System.out.println("questionServiceImp.updateContent(" + id + "," + content + ")");	
+		if(questions.containsKey(id)){
+			Question question = questions.get(id);
+			//持久化
+			this.persist(question);
+		}
+	}
+	
 	@Override
 	public void updateContent(String id, String content) {
 		//System.out.println("questionServiceImp.updateContent(" + id + "," + content + ")");	
@@ -226,14 +246,18 @@ public class QuestionServiceImp implements QuestionSevice{
 	}
 
 	@Override
-	public void updateWrongTag(String id, String wrongTag) {
+	public void updateWrongTag(String id, String wrongImage, String wrongTag) {
 		//System.out.println("questionServiceImp.updateContent(" + id + "," + content + ")");	
 		if(questions.containsKey(id)){
 			Question question = questions.get(id);
-			//更新domain对象
-			question.setWrongTag(wrongTag);
-			//持久化
-			this.persist(question);
+			if(question.getWrongTag(wrongImage)==null ||!question.getWrongTag(wrongImage).equals(wrongTag)){
+				//更新domain对象
+				question.setWrongTag(wrongImage, wrongTag);
+				//持久化
+				this.persist(question);				
+			}else{
+				System.out.println("it is equals！ nothing to do!");
+			}
 		}
 	}
 	
@@ -257,17 +281,27 @@ public class QuestionServiceImp implements QuestionSevice{
 
 
 	private void persist(Question question){
+		//System.out.println(question.getWrongString());
+		
 		QuestionEntity qe = new QuestionEntity();
 		qe.setId(question.getId());
 		qe.setContent(question.getContent());
 		qe.setRightTimes(question.getRightTimes());
 		qe.setKnowledgeTag(question.getKnowledgeTag());
 		qe.setDifficulty(question.getDifficulty());
-		qe.setWrongTag(question.getWrongTag());
 		qe.setSchool(question.getSchool());
 		qe.setContentImage(question.getContentImage());
-		qe.setWrongImage(question.getWrongImagesString());
 		qe.setDeleted(question.getDeleted());
+	
+		for(Map.Entry<String, Wrong> entry : question.getWrongs().entrySet()){
+			Wrong w = entry.getValue();
+			//System.out.println(w.getWrongTag());
+			qe.addWrongs(w.getWrongImage(), w.getWrongTag());
+		}
+
+		//System.out.println("persist: " + qe.getWrongString());
+		
+		
 		questionRepository.save(qe);
 	}
 	
@@ -277,12 +311,18 @@ public class QuestionServiceImp implements QuestionSevice{
 		dto.setContent(question.getContent());
 		dto.setContentImage(question.getContentImage());
 		dto.setRightTimes(question.getRightTimes());
-		dto.setWrongTimes(question.getWrongTimes());
+		//dto.setWrongTimes(question.getWrongTimes());
 		dto.setKnowledgeTag(question.getKnowledgeTag());
 		dto.setDifficulty(question.getDifficulty());
-		dto.setWrongTag(question.getWrongTag());
 		dto.setSchool(question.getSchool());
-		dto.setWorngImages(question.getWrongImages().toArray(new String[0]));
+		
+		//dto.setWorngImages(question.getWrongImages());
+		//dto.setWrongTag(question.getWrongTagString());
+		
+		for(Map.Entry<String, Wrong> entry : question.getWrongs().entrySet()){
+			dto.addWrong(entry.getValue().getWrongImage(), entry.getValue().getWrongTag());
+		}
+
 		return dto;
 	}
 	
@@ -316,8 +356,8 @@ public class QuestionServiceImp implements QuestionSevice{
 		Map<String, Integer> statics = new HashMap<String,Integer>();
 		String[] tags;
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
-			if(entry.getValue().getWrongTag()!=null){
-				tags = entry.getValue().getWrongTag().split(" ");
+			if(entry.getValue().getWrongTagString()!=null){
+				tags = entry.getValue().getWrongTagString().split(" ");
 				for(String tag : tags){
 					if(!tag.trim().isEmpty()){
 						if(statics.containsKey(tag)){

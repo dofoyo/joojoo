@@ -1,8 +1,6 @@
 package com.rhb.joojoo.service;
 
-import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.rhb.joojoo.api.QuestionDTO;
-import com.rhb.joojoo.api.ImageDTO;
+import com.rhb.joojoo.api.question.QuestionDTO;
+import com.rhb.joojoo.api.question.WrongDTO;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -22,37 +20,23 @@ public class QuestionServiceTest {
 	
 	//@Test
 	public void testGetQuestions(){
-		String path = "D:\\mydocs\\ranluwei\\joojoo\\images\\";
-		File file;
-		List<QuestionDTO> dtos = questionService.getQuestions("","","","","","");
-		for(QuestionDTO dto : dtos){
-			for(String wrongImage : dto.getWorngImages()){
-				file = new File(path + wrongImage);
-				if(!file.exists()){
-					System.out.println(dto.getContentImage());
-					
-				}				
+		String orderBy = "";
+		String keywordFilter = "";
+		String knowledgeTagFilter = "";
+		String wrongTagFilter = "";
+		String difficultyFilter = "";
+		String wrongRateFilter = "";
+		List<QuestionDTO> questions = questionService.getQuestions(orderBy, keywordFilter, knowledgeTagFilter, wrongTagFilter, difficultyFilter, wrongRateFilter);
+		
+		for(QuestionDTO q : questions){
+			for(WrongDTO w : q.getWrongs()){
+				if(w.getTag() == null || w.getTag().trim().isEmpty()){
+					System.out.println(q.getContent() + ", wrongImage=" + w.getImage() + ", wrongTag=" + w.getTag());
+				}
 			}
+		}
+		
+	}
 
-			
-		}
-	}
-	
-	//@Test
-	public void testGetWrongRateStatic(){
-		Map<String,Integer> m = questionService.getWrongRateStatic();
-		for(Map.Entry<String,Integer> mapEntry : m.entrySet()){
-			System.out.println(mapEntry.getKey() + ": " + mapEntry.getValue());
-		}
-	}
-	
-	//@Test
-	public void testGetTodoImages(){
-		List<ImageDTO> dtos = questionService.getImages("","");
-		for(ImageDTO dto : dtos){
-			System.out.println(dto.toString());
-		}
-	}
-	
 
 }

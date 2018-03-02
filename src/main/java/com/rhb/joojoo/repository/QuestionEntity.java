@@ -1,28 +1,48 @@
 package com.rhb.joojoo.repository;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class QuestionEntity {
 	private String id;
 	private String content;					// 题目
 	private int rightTimes = 0;					//正确次数
 	private String KnowledgeTag;				//知识点
 	private Integer difficulty = 0;
-	private String wrongTag;				//错误点
 	private String school; 					//学校
-	private String wrongImage;			//错题图片
+	private Set<WrongEntity> wrongs = new HashSet<WrongEntity>();
 	private String contentImage;		//题目图片
 	private int deleted = 0; 
+
+	public String getWrongTagString(){
+		StringBuffer sb  = new StringBuffer();
+		for(WrongEntity we : wrongs){
+			sb.append(we.getWrongTag());
+			sb.append(" ");
+		}		
+		return sb.toString();
+	}
+
 	
+	public void addWrongs(String image, String tag){
+		WrongEntity we = new WrongEntity();
+		we.setWrongImage(image);
+		we.setWrongTag(tag);
+		this.wrongs.add(we);
+		
+	}
+	
+	public Set<WrongEntity> getWrongs() {
+		return wrongs;
+	}
+	public void setWrongs(Set<WrongEntity> wrongs) {
+		this.wrongs = wrongs;
+	}
 	public int getDeleted() {
 		return deleted;
 	}
 	public void setDeleted(int deleted) {
 		this.deleted = deleted;
-	}
-	public String getWrongImage() {
-		return wrongImage;
-	}
-	public void setWrongImage(String wrongImage) {
-		this.wrongImage = wrongImage;
 	}
 	public String getContentImage() {
 		return contentImage;
@@ -35,12 +55,6 @@ public class QuestionEntity {
 	}
 	public void setSchool(String school) {
 		this.school = school;
-	}
-	public String getWrongTag() {
-		return wrongTag;
-	}
-	public void setWrongTag(String wrongTag) {
-		this.wrongTag = wrongTag;
 	}
 	public Integer getDifficulty() {
 		return difficulty;
