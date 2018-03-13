@@ -62,8 +62,11 @@ public class ChartController{
 	
 	
 	@GetMapping("/wrongTagChart")
-	public ResponseContent<List<ChartDTO>> getWrongTags(@RequestParam(value="threshold", defaultValue="1") String threshold) {
-		Map<String,Integer> tags = questionService.getWrongTagStatics();
+	public ResponseContent<List<ChartDTO>> getWrongTags(@RequestParam(value="threshold", defaultValue="1") String threshold,
+			@RequestParam(value="duration", defaultValue="0") String duration
+			) {
+		
+		Map<String,Integer> tags = questionService.getWrongTagStatics(Integer.parseInt(duration));
 		List<ChartDTO> list = new ArrayList<ChartDTO>();
 		int total = 0;
 		for(Map.Entry<String, Integer> entry : tags.entrySet()){
@@ -98,8 +101,10 @@ public class ChartController{
 	}
 	
 	@GetMapping("/knowledgeTagChart")
-	public ResponseContent<List<ChartDTO>> getKnowledgeTags(@RequestParam(value="threshold", defaultValue="1") String threshold) {
-		Map<String,Integer> tags = questionService.getKnowledgeTagStatics();
+	public ResponseContent<List<ChartDTO>> getKnowledgeTags(@RequestParam(value="threshold", defaultValue="1") String threshold,
+			@RequestParam(value="duration", defaultValue="0") String duration
+			) {
+		Map<String,Integer> tags = questionService.getKnowledgeTagStatics(Integer.parseInt(duration));
 		List<ChartDTO> list = new ArrayList<ChartDTO>();
 		int total = 0;
 		for(Map.Entry<String, Integer> entry : tags.entrySet()){

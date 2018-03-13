@@ -1,6 +1,7 @@
 package com.rhb.joojoo.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +27,8 @@ public class QuestionServiceTest {
 		String wrongTagFilter = "";
 		String difficultyFilter = "";
 		String wrongRateFilter = "";
-		List<QuestionDTO> questions = questionService.getQuestions(orderBy, keywordFilter, knowledgeTagFilter, wrongTagFilter, difficultyFilter, wrongRateFilter);
+		String duration = "1000";
+		List<QuestionDTO> questions = questionService.getQuestions(orderBy, keywordFilter, knowledgeTagFilter, wrongTagFilter, difficultyFilter, wrongRateFilter,duration);
 		
 		for(QuestionDTO q : questions){
 			for(WrongDTO w : q.getWrongs()){
@@ -35,7 +37,15 @@ public class QuestionServiceTest {
 				}
 			}
 		}
-		
+	}
+	
+	@Test
+	public void test(){
+		Map<String,Integer> m = questionService.getKnowledgeTagStatics(7);
+		for(Map.Entry<String, Integer> entry : m.entrySet()){
+			System.out.println(entry.getKey() + " = " + entry.getValue());
+		}
+
 	}
 
 

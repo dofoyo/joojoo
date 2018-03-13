@@ -42,6 +42,7 @@ public class ImageTool {
 			File f = new File(srcImageFile);
 			//System.out.println(srcImageFile);
 			BufferedImage bi = ImageIO.read(f);
+			//System.out.println(srcImageFile);
 			Image itemp = bi.getScaledInstance(width, height, bi.SCALE_SMOOTH);
 			// 计算比例
 			if ((bi.getHeight() > height) || (bi.getWidth() > width)) {

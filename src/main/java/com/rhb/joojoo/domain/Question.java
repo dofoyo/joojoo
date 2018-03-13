@@ -1,7 +1,6 @@
 package com.rhb.joojoo.domain;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +19,43 @@ public class Question {
 	private Map<String,Wrong> wrongs = new HashMap<String,Wrong>();
 	private int deleted = 0;
 	
+	public boolean isDuration(String duration){
+		boolean flag = false;
+		if(duration.trim().isEmpty() || this.getInteger(duration) == 0 || this.getInteger(duration) >= this.getDuration()){
+			flag = true;
+		}
+		return flag;
+	}
+	
+	private int getInteger(String str){
+		int i = 0;
+		try{
+			i = Integer.parseInt(str);
+		}catch(Exception e){
+			
+		}
+		return i;
+	}
+	
+	public boolean isDuration(int duration){
+		boolean flag = false;
+		if(duration == 0 || duration >= this.getDuration()){
+			flag = true;
+		}
+		return flag;
+	}
+	
+	public long getDuration(){
+		long duration = 1000;
+		for(Map.Entry<String, Wrong> entry : this.wrongs.entrySet()){
+			Wrong w = entry.getValue();
+			if(w.getDuration() < duration){
+				duration = w.getDuration();
+			}
+		}
+		return duration;
+
+	}
 	
 	public Map<String, Wrong> getWrongs() {
 		return wrongs;

@@ -13,7 +13,8 @@ public interface QuestionSevice {
 			String knowledgeTagFilter,
 			String wrongTagFilter,
 			String difficultyFilter,
-			String wrongRateFilter);
+			String wrongRateFilter,
+			String duration);
 	public void refresh();
 	public QuestionDTO getQuestion(String id);
 	public void updateContent(String id, String content);
@@ -21,8 +22,8 @@ public interface QuestionSevice {
 	public void updateWrongTag(String id, String wrongImage, String wrongTag);
 	public void right(String id, int i);
 	public void updateDifficulty(String id, int i);
-	public Map<String,Integer> getKnowledgeTagStatics();
-	public Map<String,Integer> getWrongTagStatics();
+	public Map<String,Integer> getKnowledgeTagStatics(int duration);
+	public Map<String,Integer> getWrongTagStatics(int duration);
 	public Map<String,Integer> getWrongRateStatic();
 	public Map<String,Integer> getDifficulty(String wrongRateFilter);
 	public void init();

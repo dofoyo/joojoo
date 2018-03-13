@@ -17,7 +17,7 @@ public class QuestionDTO {
 	private Integer rightTimes = 0;					//正确次数
 	private String knowledgeTag;	//知识点标签
 	private Integer difficulty = 0;
-	
+	private String duration;
 	private Set<WrongDTO> wrongs = new HashSet<WrongDTO>();
 	
 	//private String wrongTag;	//错误点
@@ -25,6 +25,26 @@ public class QuestionDTO {
 	//private String[] worngImageUrls;  
 
 	private String school; 					//学校
+	
+
+
+	public String getDuration() {
+		return duration;
+	}
+
+	public void setDuration(String duration) {
+		this.duration = duration;
+	}
+
+	public Integer getMadeDate(){
+		Integer madeDate = 0;
+		for(WrongDTO wrong : wrongs){
+			if(wrong.getMadeDate().compareTo(madeDate) == 1){
+				madeDate = wrong.getMadeDate();
+			}
+		}
+		return madeDate;
+	}
 	
 	public Set<WrongDTO> getWrongs() {
 		return wrongs;
@@ -124,7 +144,7 @@ public class QuestionDTO {
 			flag = true;
 		}else{
 			for(WrongDTO w : wrongs){
-				if(w.getTag().indexOf(wrongTagFilter) != -1){
+				if(w.getTag()!=null && w.getTag().indexOf(wrongTagFilter) != -1){
 					flag = true;
 					break;
 				}

@@ -71,7 +71,10 @@ public class QuestionRepositoryImp implements QuestionRepository {
 		String pathAndFile;
 		for(String file : files){
 			pathAndFile = imagePath.substring(6) + file;
-			ImageTool.scale2(pathAndFile, pathAndFile, 768, 1024, false);
+			try{
+				ImageTool.scale2(pathAndFile, pathAndFile, 768, 1024, false);
+			}catch(Exception e){
+			}
 		}
         return files;
 	}

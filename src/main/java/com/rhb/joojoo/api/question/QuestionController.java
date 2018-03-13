@@ -40,9 +40,10 @@ public class QuestionController{
 			@RequestParam(value="wrongTagFilter", defaultValue="") String wrongTagFilter,
 			@RequestParam(value="difficultyFilter", defaultValue="") String difficultyFilter,
 			@RequestParam(value="wrongRateFilter", defaultValue="") String wrongRateFilter,
+			@RequestParam(value="duration", defaultValue="1000") String duration,
 			@RequestParam(value="count", defaultValue="20") Integer count){
 		
-		List<QuestionDTO> questions = questionService.getQuestions(orderBy,keywordFilter,knowledgeTagFilter,wrongTagFilter,difficultyFilter,wrongRateFilter);
+		List<QuestionDTO> questions = questionService.getQuestions(orderBy,keywordFilter,knowledgeTagFilter,wrongTagFilter,difficultyFilter,wrongRateFilter,duration);
 		
 		//System.out.println("keywordFilter: " + keywordFilter);
 		//System.out.println("count: " + count);

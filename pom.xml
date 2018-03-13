@@ -5,7 +5,7 @@
 
 	<groupId>com.rhb</groupId>
 	<artifactId>joojoo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1</version>
 	<packaging>jar</packaging>
 
 	<name>joojoo</name>
@@ -47,6 +47,17 @@
 		    <version>4.12</version>
 		    <scope>test</scope>
 		</dependency>
+		
+		<dependency>  
+		    <groupId>dom4j</groupId>  
+		    <artifactId>dom4j</artifactId>  
+		</dependency> 
+		<dependency>  
+            <groupId>com.thoughtworks.xstream</groupId>  
+            <artifactId>xstream</artifactId>  
+            <version>1.4.9</version>  
+        </dependency>  
+		
 	</dependencies>
 
 	<build>

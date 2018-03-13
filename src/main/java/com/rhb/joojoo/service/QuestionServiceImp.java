@@ -41,13 +41,14 @@ public class QuestionServiceImp implements QuestionSevice{
 			String knowledgeTagFilter,
 			String wrongTagFilter, 
 			String difficultyFilter,
-			String wrongRateFilter) {
+			String wrongRateFilter,
+			String duration) {
 		
 		List<QuestionDTO> dtos = new ArrayList<QuestionDTO>();
 		QuestionDTO dto;
 		
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
-			if(entry.getValue().getDeleted()==0){
+			if(entry.getValue().getDeleted()==0 && entry.getValue().isDuration(duration)){
 				 dto = this.getQuestionDTO(entry.getValue());
 				 if(dto.isMatchKnowledgedTag(knowledgeTagFilter) &&
 						 dto.isMatchDifficulty(difficultyFilter) && 
@@ -68,6 +69,13 @@ public class QuestionServiceImp implements QuestionSevice{
 					return s1.compareTo(s2);
 				}
 			});
+		}else if("orderByDate".equals(orderBy)){
+			Collections.sort(dtos, new Comparator<QuestionDTO>(){
+				public int compare(QuestionDTO dto1, QuestionDTO dto2){			
+					return dto2.getMadeDate().compareTo(dto1.getMadeDate());
+				}
+			});
+			
 		}else{
 			Collections.sort(dtos, new Comparator<QuestionDTO>(){
 				public int compare(QuestionDTO dto1, QuestionDTO dto2){
@@ -315,6 +323,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		dto.setKnowledgeTag(question.getKnowledgeTag());
 		dto.setDifficulty(question.getDifficulty());
 		dto.setSchool(question.getSchool());
+		dto.setDuration(Long.toString(question.getDuration()));
 		
 		//dto.setWorngImages(question.getWrongImages());
 		//dto.setWrongTag(question.getWrongTagString());
@@ -352,11 +361,11 @@ public class QuestionServiceImp implements QuestionSevice{
 	}
 
 	@Override
-	public Map<String, Integer> getWrongTagStatics() {	
+	public Map<String, Integer> getWrongTagStatics(int duration) {	
 		Map<String, Integer> statics = new HashMap<String,Integer>();
 		String[] tags;
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
-			if(entry.getValue().getWrongTagString()!=null){
+			if(entry.getValue().getWrongTagString()!=null  && entry.getValue().isDuration(duration)){
 				tags = entry.getValue().getWrongTagString().split(" ");
 				for(String tag : tags){
 					if(!tag.trim().isEmpty()){
@@ -374,11 +383,11 @@ public class QuestionServiceImp implements QuestionSevice{
 	}
 	
 	@Override
-	public Map<String, Integer> getKnowledgeTagStatics() {
+	public Map<String, Integer> getKnowledgeTagStatics(int duration) {
 		Map<String, Integer> statics = new HashMap<String,Integer>();
 		String[] tags;
 		for(Map.Entry<String, Question> entry : questions.entrySet()){
-			if(entry.getValue().getKnowledgeTag()!=null){
+			if(entry.getValue().getKnowledgeTag()!=null && entry.getValue().isDuration(duration)){
 				tags = entry.getValue().getKnowledgeTag().split(" ");
 				for(String tag : tags){
 					if(!tag.trim().isEmpty()){
