@@ -9,7 +9,7 @@ public class Question {
 	private String id;
 	private String content;					// 题目
 	private String contentImage;  			// 题目图片
-	private Set<String> knowledgeTags;		// 知识点标签（追击、相遇...)
+	private Map<String,String> knowledgeTags = new HashMap<String,String>();		// 知识点标签（追击、相遇...)
 	private String knowledgeTag;			//知识点标签
 	private List<Practice> practices;		// 练习
 	private Integer difficulty = 0;  		//难度,0-最简单，1-较简单，2-简单，3-难，4较难，5-最难
@@ -166,11 +166,11 @@ public class Question {
 	public void setContentImage(String contentImage) {
 		this.contentImage = contentImage;
 	}
-	public Set<String> getKnowledgeTags() {
+	public Map<String,String> getKnowledgeTags() {
 		return knowledgeTags;
 	}
-	public void setKnowledgeTags(Set<String> knowledgeTags) {
-		this.knowledgeTags = knowledgeTags;
+	public void addKnowledgeTags(String id, String tag) {
+		this.knowledgeTags.put(id, tag);
 	}
 	public List<Practice> getPractices() {
 		return practices;
@@ -191,6 +191,11 @@ public class Question {
 
 	public void right(int i){
 		this.rightTimes = this.rightTimes + i;
+	}
+
+	@Override
+	public String toString() {
+		return "Question [content=" + content + ", knowledgeTags=" + knowledgeTags + "]";
 	}
 	
 	

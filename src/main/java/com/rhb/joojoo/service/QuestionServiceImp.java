@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.rhb.joojoo.api.image.ImageDTO;
 import com.rhb.joojoo.api.question.QuestionDTO;
+import com.rhb.joojoo.api.question.QuestionsDTO;
 import com.rhb.joojoo.api.question.WrongDTO;
 import com.rhb.joojoo.domain.Question;
 import com.rhb.joojoo.domain.Wrong;
@@ -28,6 +29,7 @@ public class QuestionServiceImp implements QuestionSevice{
 	
 	private Map<String,Question> questions = null;
 	private Map<String,ImageDTO> images = null;
+	private Map<String,String> knowledges = null;
 	
 	@Override
 	public void addImage(String imagename){
@@ -76,6 +78,20 @@ public class QuestionServiceImp implements QuestionSevice{
 				}
 			});
 			
+		}else if("orderByKnowledge".equals(orderBy)){
+			Collections.sort(dtos, new Comparator<QuestionDTO>(){
+				public int compare(QuestionDTO dto1, QuestionDTO dto2){
+					if(dto1.getKnowledgeTag()==null && dto2.getKnowledgeTag()!=null) {
+						return -1;
+					}else if(dto1.getKnowledgeTag()!=null && dto2.getKnowledgeTag()==null) {
+						return 1;
+					}else if(dto1.getKnowledgeTag()==null && dto2.getKnowledgeTag()==null) {
+						return 0;
+					}else {
+						return dto1.getKnowledgeTag().compareTo(dto2.getKnowledgeTag());						
+					}
+				}
+			});
 		}else{
 			Collections.sort(dtos, new Comparator<QuestionDTO>(){
 				public int compare(QuestionDTO dto1, QuestionDTO dto2){
@@ -97,9 +113,14 @@ public class QuestionServiceImp implements QuestionSevice{
 	
 	public void init(){
 		System.out.println(" QuestionServiceImp init begin...........");
+		this.initKnowledges();
 		this.initQuestions();
 		this.initImages();
 		System.out.println(" QuestionServiceImp init end...........");
+	}
+	
+	private void initKnowledges() {
+		this.knowledges = questionRepository.getKnowledges();
 	}
 	
 	private void initQuestions(){
@@ -107,6 +128,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		List<QuestionEntity> QuestionEntities = questionRepository.getQuestionEntities();
 		
 		Question question = null;
+		String[] kk = null;
 		
 		for(QuestionEntity q : QuestionEntities){
 			question = new Question();
@@ -114,6 +136,13 @@ public class QuestionServiceImp implements QuestionSevice{
 			question.setContent(q.getContent());
 			question.setRightTimes(q.getRightTimes());
 			question.setKnowledgeTag(q.getKnowledgeTag());
+
+				if(q.getKnowledgeTag() != null) {	
+					kk = q.getKnowledgeTag().split(" ");
+					for(String str : kk) {
+						question.addKnowledgeTags(str, this.knowledges.get(str));
+				}				}
+
 			question.setDifficulty(q.getDifficulty());
 			question.setSchool(q.getSchool());
 			question.setContentImage(q.getContentImage());
@@ -324,6 +353,7 @@ public class QuestionServiceImp implements QuestionSevice{
 		dto.setDifficulty(question.getDifficulty());
 		dto.setSchool(question.getSchool());
 		dto.setDuration(Long.toString(question.getDuration()));
+		dto.setKnowledgeTags(question.getKnowledgeTags());
 		
 		//dto.setWorngImages(question.getWrongImages());
 		//dto.setWrongTag(question.getWrongTagString());
@@ -331,6 +361,23 @@ public class QuestionServiceImp implements QuestionSevice{
 		for(Map.Entry<String, Wrong> entry : question.getWrongs().entrySet()){
 			dto.addWrong(entry.getValue().getWrongImage(), entry.getValue().getWrongTag());
 		}
+
+		return dto;
+	}
+	
+	private QuestionDTO getQuestionDTO(QuestionDTO question){
+		QuestionDTO dto = new QuestionDTO();
+		dto.setId(question.getId());
+		dto.setContent(question.getContent());
+		dto.setContentImage(question.getContentImage());
+		dto.setRightTimes(question.getRightTimes());
+		dto.setWrongs(question.getWrongs());
+		dto.setKnowledgeTag(question.getKnowledgeTag());
+		dto.setDifficulty(question.getDifficulty());
+		dto.setSchool(question.getSchool());
+		dto.setDuration(question.getDuration());
+		dto.setKnowledgeTags(question.getKnowledgeTags());
+		
 
 		return dto;
 	}
@@ -467,6 +514,62 @@ public class QuestionServiceImp implements QuestionSevice{
 			}
 		});
 		return list;
+	}
+
+	@Override
+	public List<QuestionsDTO> getQuestionsByKnowledge() {
+		Map<String,QuestionsDTO> kqs = new HashMap<String,QuestionsDTO>();
+		for(Map.Entry<String, String> entry : knowledges.entrySet()) {
+			QuestionsDTO qs = new QuestionsDTO();
+			qs.setKnowledgeID(entry.getKey());
+			qs.setKnowledgeName(entry.getValue());
+			kqs.put(entry.getKey(), qs);
+		}
+		
+		QuestionDTO dto;
+		QuestionsDTO sdto;
+		String[] knowledges = null;
+		for(Map.Entry<String, Question> entry : questions.entrySet()){
+			dto = this.getQuestionDTO(entry.getValue());
+			if(dto.getKnowledgeTag() != null && dto.isMatchWrongTag("不会")) {
+				knowledges = dto.getKnowledgeTag().split(" ");
+				for(String k : knowledges) {
+					dto.setKnowledgeTag(k + "-" + this.knowledges.get(k));
+					
+					sdto = kqs.get(k);
+					if(sdto !=null) {
+						sdto.addQuestion(dto);
+						
+					}else {
+						System.out.println(k + " is NULL!");
+					}
+					
+					//dtos.add(dto);	
+					
+					dto = this.getQuestionDTO(dto);
+				}				
+			}
+		}
+
+		
+		List<QuestionsDTO> dtos = new ArrayList<QuestionsDTO>(kqs.values());
+
+		
+		Collections.sort(dtos, new Comparator<QuestionsDTO>(){
+			public int compare(QuestionsDTO dto1, QuestionsDTO dto2){
+				if(dto1.getKnowledgeID()==null && dto2.getKnowledgeID()!=null) {
+					return -1;
+				}else if(dto1.getKnowledgeID()!=null && dto2.getKnowledgeID()==null) {
+					return 1;
+				}else if(dto1.getKnowledgeID()==null && dto2.getKnowledgeID()==null) {
+					return 0;
+				}else {
+					return dto1.getKnowledgeID().compareTo(dto2.getKnowledgeID());						
+				}
+			}
+		});
+		
+		return dtos;
 	}
 
 	

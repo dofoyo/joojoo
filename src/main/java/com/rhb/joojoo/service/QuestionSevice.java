@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.rhb.joojoo.api.image.ImageDTO;
 import com.rhb.joojoo.api.question.QuestionDTO;
+import com.rhb.joojoo.api.question.QuestionsDTO;
 
 public interface QuestionSevice {
 	public List<QuestionDTO> getQuestions(
@@ -15,6 +16,7 @@ public interface QuestionSevice {
 			String difficultyFilter,
 			String wrongRateFilter,
 			String duration);
+	public List<QuestionsDTO> getQuestionsByKnowledge();
 	public void refresh();
 	public QuestionDTO getQuestion(String id);
 	public void updateContent(String id, String content);

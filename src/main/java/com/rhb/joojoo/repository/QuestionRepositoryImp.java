@@ -5,11 +5,13 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +36,13 @@ public class QuestionRepositoryImp implements QuestionRepository {
 		for(String json : jsons){
 			try {
 				QuestionEntity q = mapper.readValue(new File(rootPath.substring(6) + json), QuestionEntity.class);
-				questions.add(q);
+				if(q.getId()==null) {
+/*					System.out.println("********** ERROR: id is null.****************");
+					System.out.println(json);
+					System.out.println("**************************");*/
+				}else {
+					questions.add(q);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -125,6 +133,25 @@ public class QuestionRepositoryImp implements QuestionRepository {
         }
         
         return images;
+	}
+
+	@Override
+	public Map<String, String> getKnowledges() {
+        File file = new File(rootPath.substring(6) + "/knowledges.json");
+        
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+
+		
+		Map<String,String> knowledges = null;
+		try {
+			knowledges = mapper.readValue(file, new TypeReference<Map<String,String>>() {});
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// TODO Auto-generated method stub
+		return knowledges;
 	}
 	
 }

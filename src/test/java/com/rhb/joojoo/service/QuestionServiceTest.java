@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.rhb.joojoo.api.question.QuestionDTO;
+import com.rhb.joojoo.api.question.QuestionsDTO;
 import com.rhb.joojoo.api.question.WrongDTO;
 
 
@@ -21,7 +22,7 @@ public class QuestionServiceTest {
 	
 	//@Test
 	public void testGetQuestions(){
-		String orderBy = "";
+		String orderBy = "orderByKnowledge";
 		String keywordFilter = "";
 		String knowledgeTagFilter = "";
 		String wrongTagFilter = "";
@@ -31,21 +32,26 @@ public class QuestionServiceTest {
 		List<QuestionDTO> questions = questionService.getQuestions(orderBy, keywordFilter, knowledgeTagFilter, wrongTagFilter, difficultyFilter, wrongRateFilter,duration);
 		
 		for(QuestionDTO q : questions){
-			for(WrongDTO w : q.getWrongs()){
-				if(w.getTag() == null || w.getTag().trim().isEmpty()){
-					System.out.println(q.getContent() + ", wrongImage=" + w.getImage() + ", wrongTag=" + w.getTag());
-				}
-			}
+			System.out.println(q.toString());
 		}
 	}
 	
-	@Test
+	//@Test
 	public void test(){
 		Map<String,Integer> m = questionService.getKnowledgeTagStatics(7);
 		for(Map.Entry<String, Integer> entry : m.entrySet()){
 			System.out.println(entry.getKey() + " = " + entry.getValue());
 		}
 
+	}
+	
+	@Test
+	public void test1() {
+		List<QuestionsDTO> questions = questionService.getQuestionsByKnowledge();
+		
+		for(QuestionsDTO q : questions){
+			System.out.println(q.toString());
+		}
 	}
 
 

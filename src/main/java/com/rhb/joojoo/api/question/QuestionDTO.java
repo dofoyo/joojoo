@@ -1,6 +1,8 @@
 package com.rhb.joojoo.api.question;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.script.ScriptEngine;
@@ -16,6 +18,7 @@ public class QuestionDTO {
 	private String contentImageUrl;
 	private Integer rightTimes = 0;					//正确次数
 	private String knowledgeTag;	//知识点标签
+	private Map<String,String> knowledgeTags = new HashMap<String,String>();		// 知识点标签（追击、相遇...)	
 	private Integer difficulty = 0;
 	private String duration;
 	private Set<WrongDTO> wrongs = new HashSet<WrongDTO>();
@@ -25,8 +28,17 @@ public class QuestionDTO {
 	//private String[] worngImageUrls;  
 
 	private String school; 					//学校
+	private String answer = "...";
 	
 
+
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(String answer) {
+		this.answer = answer;
+	}
 
 	public String getDuration() {
 		return duration;
@@ -277,6 +289,21 @@ public class QuestionDTO {
 	public Integer getWrongTimes() {
 		return this.wrongs.size();
 	}
+
+	public Map<String, String> getKnowledgeTags() {
+		return knowledgeTags;
+	}
+
+	public void setKnowledgeTags(Map<String, String> knowledgeTags) {
+		this.knowledgeTags = knowledgeTags;
+	}
+
+	@Override
+	public String toString() {
+		return "QuestionDTO [knowledgeTag=" + knowledgeTag + ", id=" + id + ", content=" + content + "]";
+	}
+
+
 
 
 

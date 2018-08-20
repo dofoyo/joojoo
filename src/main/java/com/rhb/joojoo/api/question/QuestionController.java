@@ -63,6 +63,26 @@ public class QuestionController{
 		return new ResponseContent<List<QuestionDTO>>(ResponseEnum.SUCCESS,list);
 	}
 	
+	
+	@GetMapping("/questionsbyknowledge")
+	public ResponseContent<List<QuestionsDTO>> getQuestionsByKnowledge(){
+		
+		List<QuestionsDTO> questions = questionService.getQuestionsByKnowledge();
+		
+		//System.out.println("keywordFilter: " + keywordFilter);
+		//System.out.println("count: " + count);
+		
+		for(QuestionsDTO sdto : questions) {
+			for(QuestionDTO dto : sdto.getQuestions()) {
+				dto.setContentImageUrl(this.getImageUrl(dto.getContentImage()));
+				dto.setWrongImageUrl(this.getImageUrlPrefix());			
+			}
+		}
+		
+		return new ResponseContent<List<QuestionsDTO>>(ResponseEnum.SUCCESS,questions);
+	}
+	
+	
 	@PutMapping("/questions")
 	public void refresh() {
 		//System.out.println("refresh....");
@@ -71,7 +91,7 @@ public class QuestionController{
 
 	@GetMapping("/question")
 	public ResponseContent<QuestionDTO> getQuestion(@RequestParam(value="id") String id) {
-		//System.out.println("id: " +  id);
+		System.out.println("id: " +  id);
 		
 		QuestionDTO question = questionService.getQuestion(id);
 		question.setContentImageUrl(this.getImageUrl(question.getContentImage()));
